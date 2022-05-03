@@ -8,11 +8,17 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.imotorini.sbobinator9000.services.AudioRecordingService;
+
+import java.io.IOException;
+
 public class MainActivity extends AppCompatActivity {
 
     private ImageButton recorderButton;
     private TextView isRecordingTextView;
     private boolean isRecording = false;
+
+    private AudioRecordingService audioRecordingService;
 
     private static final String TAG = MainActivity.class.getName();
 
@@ -23,6 +29,12 @@ public class MainActivity extends AppCompatActivity {
 
         recorderButton = findViewById(R.id.recorder_button);
         isRecordingTextView = findViewById(R.id.is_recording_tv);
+
+        audioRecordingService = new AudioRecordingService(
+                getContentResolver(),
+                getApplicationContext(),
+                this
+        );
 
         initializeWidgets();
         updateUI();
@@ -40,8 +52,22 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 // Star recorder service
                 isRecording = !isRecording;
+                if (isRecording) {
+                    try {
+                        audioRecordingService.startRecording();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    try {
+                        audioRecordingService.stopRecording();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
                 updateUI();
             }
         });
     }
+
 }
