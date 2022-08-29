@@ -3,6 +3,7 @@ package com.imotorini.sbobinator9000;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -15,6 +16,7 @@ import java.io.IOException;
 public class MainActivity extends AppCompatActivity {
 
     private ImageButton recorderButton;
+    private Button transcribeButton;
     private TextView isRecordingTextView;
     private boolean isRecording = false;
 
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
         recorderButton = findViewById(R.id.recorder_button);
         isRecordingTextView = findViewById(R.id.is_recording_tv);
+        transcribeButton= findViewById(R.id.btn_transcribe);
 
         audioRecordingService = new AudioRecordingService(
                 getContentResolver(),
@@ -66,6 +69,13 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 updateUI();
+            }
+        });
+        transcribeButton.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+
             }
         });
     }

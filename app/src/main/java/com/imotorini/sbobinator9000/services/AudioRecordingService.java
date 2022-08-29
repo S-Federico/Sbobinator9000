@@ -5,11 +5,13 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.speech.RecognitionListener;
@@ -19,6 +21,7 @@ import android.speech.SpeechRecognizer;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.io.File;
 import java.io.IOException;
 
 public class AudioRecordingService {
@@ -30,6 +33,7 @@ public class AudioRecordingService {
     private final Context context;
     private SpeechRecognizer speechRecognizer;
     private final Activity activity;
+    private MediaRecorder audioRecorder;
 
     public AudioRecordingService(ContentResolver contentResolver, Context context, Activity activity) {
         this.contentResolver = contentResolver;
@@ -42,7 +46,7 @@ public class AudioRecordingService {
         getMicrophonePermission();
         getStoragePermission();
 
-        String fileName = "caca " + System.currentTimeMillis() + ".mp3";
+        String fileName = "caca " + /*System.currentTimeMillis() +*/ ".mp3";
         ContentValues values = new ContentValues(4);
         values.put(MediaStore.Audio.Media.TITLE, fileName);
         values.put(MediaStore.Audio.Media.DISPLAY_NAME, fileName);
@@ -51,80 +55,24 @@ public class AudioRecordingService {
 
         Uri audiouri = contentResolver.insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, values);
         ParcelFileDescriptor file = contentResolver.openFileDescriptor(audiouri, "w");
-
+        /*ContextWrapper contextWrapper = new ContextWrapper(activity.getApplicationContext());
+        File musicDirectory= contextWrapper.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+        File file = new File(musicDirectory,fileName);*/
         if (file != null) {
-            speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context);
-            Intent speechRecognizerIntent= new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-            speechRecognizerIntent.putExtra("android.speech.extra.GET_AUDIO_FORMAT", "audio/AMR");
-            speechRecognizerIntent.putExtra("android.speech.extra.GET_AUDIO", true);
-            speechRecognizer.setRecognitionListener(
-                    new RecognitionListener() {
-                        @Override
-                        public void onReadyForSpeech(Bundle bundle) {
-
-                        }
-
-                        @Override
-                        public void onBeginningOfSpeech() {
-
-                        }
-
-                        @Override
-                        public void onRmsChanged(float v) {
-
-                        }
-
-                        @Override
-                        public void onBufferReceived(byte[] bytes) {
-
-                        }
-
-                        @Override
-                        public void onEndOfSpeech() {
-
-                        }
-
-                        @Override
-                        public void onError(int i) {
-
-                        }
-
-                        @Override
-                        public void onResults(Bundle results) {
-                            System.out.println(results.toString());
-                        }
-
-                        @Override
-                        public void onPartialResults(Bundle bundle) {
-
-                        }
-
-                        @Override
-                        public void onEvent(int i, Bundle bundle) {
-
-                        }
-                    }
-            );
-            speechRecognizer.startListening(speechRecognizerIntent);
-
-
-
-            /*
-            MediaRecorder audioRecorder = new MediaRecorder();
+            audioRecorder = new MediaRecorder();
             audioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+            audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
             audioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
             audioRecorder.setOutputFile(file.getFileDescriptor());
             audioRecorder.setAudioChannels(1);
             audioRecorder.prepare();
             audioRecorder.start();
-
-             */
         }
+
     }
 
     public void stopRecording() throws IOException {
-        speechRecognizer.stopListening();
+        audioRecorder.stop();
     }
 
     private void getMicrophonePermission(){
