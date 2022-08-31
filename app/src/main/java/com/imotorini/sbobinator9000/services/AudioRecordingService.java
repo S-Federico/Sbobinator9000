@@ -75,6 +75,10 @@ public class AudioRecordingService {
         audioRecorder.stop();
     }
 
+    public void transcribe(){
+
+    }
+    
     private void getMicrophonePermission(){
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED){
             ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.RECORD_AUDIO}
