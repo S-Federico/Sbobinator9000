@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
                         audioRecordingService.stopRecording();
                     } catch (IOException e) {
                         e.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
                 updateUI();

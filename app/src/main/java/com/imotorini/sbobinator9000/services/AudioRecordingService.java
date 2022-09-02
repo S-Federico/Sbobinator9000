@@ -17,12 +17,19 @@ import android.provider.MediaStore;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.io.File;
 import java.io.IOException;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class AudioRecordingService {
 
@@ -34,6 +41,8 @@ public class AudioRecordingService {
     private SpeechRecognizer speechRecognizer;
     private final Activity activity;
     private MediaRecorder audioRecorder;
+    Uri audiouri;
+    private File file;
 
     public AudioRecordingService(ContentResolver contentResolver, Context context, Activity activity) {
         this.contentResolver = contentResolver;
@@ -67,18 +76,38 @@ public class AudioRecordingService {
             audioRecorder.setAudioChannels(1);
             audioRecorder.prepare();
             audioRecorder.start();
+            this.audiouri=audiouri;
         }
 
     }
 
-    public void stopRecording() throws IOException {
+    public void stopRecording() throws Exception {
         audioRecorder.stop();
+        file= new File(audiouri.getPath());
+
+        Toast.makeText(context, "new file audio recorded in "+file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+        transcribe();
     }
 
-    public void transcribe(){
+    public void transcribe() throws Exception {
+        testPostFile(file);
+    }
+    private static final MediaType MEDIA_TYPE_PLAINTEXT = MediaType
+            .parse("audio/mpeg3");
+    private final OkHttpClient client = new OkHttpClient();
+
+
+    public void testPostFile(File file) throws Exception {
+        Request request = new Request.Builder()
+                .url("https://cfa37ad5-35b7-4abd-8256-fa50e2422d20.mock.pstmn.io/posttest")
+                .post(RequestBody.create(MEDIA_TYPE_PLAINTEXT, file))
+                .build();
+
+        Response response = client.newCall(request).execute();
+        System.out.println(response.body().string());
+        //assertTrue(response.isSuccessful());
 
     }
-    
     private void getMicrophonePermission(){
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED){
             ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.RECORD_AUDIO}
