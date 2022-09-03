@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
     // This method should be called when UI updates
     private void updateUI() {
-        isRecordingTextView.setText(isRecording ? "Recording" : "Not recording");
+        isRecordingTextView.setText(isRecording ? getResources().getString(R.string.recording) : getResources().getString(R.string.not_recording));
     }
 
     private void initializeWidgets() {
