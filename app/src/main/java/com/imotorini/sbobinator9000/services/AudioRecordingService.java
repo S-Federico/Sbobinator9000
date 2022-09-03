@@ -19,12 +19,15 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.io.File;
 import java.io.IOException;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -36,13 +39,16 @@ public class AudioRecordingService {
     private static final int MICROPHONE_PERMISSION_CODE = 12;
     private static final int R_PERMISSION_CODE = 13;
     private static final int W_PERMISSION_CODE = 14;
+
     private final ContentResolver contentResolver;
     private final Context context;
     private SpeechRecognizer speechRecognizer;
     private final Activity activity;
     private MediaRecorder audioRecorder;
-    Uri audiouri;
+    private Uri audiouri;
     private File file;
+    private static final MediaType MEDIA_TYPE_PLAINTEXT = MediaType.parse("audio/mpeg3");
+    private final OkHttpClient client = new OkHttpClient();
 
     public AudioRecordingService(ContentResolver contentResolver, Context context, Activity activity) {
         this.contentResolver = contentResolver;
@@ -86,25 +92,35 @@ public class AudioRecordingService {
         file= new File(audiouri.getPath());
 
         Toast.makeText(context, "new file audio recorded in "+file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
-        transcribe();
+
+        Callback onResponseCallback = new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                System.err.println(e);
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                System.out.println(response.body().string());
+            }
+        };
+
+        transcribe(onResponseCallback);
     }
 
-    public void transcribe() throws Exception {
-        testPostFile(file);
+    public void transcribe(Callback onResponseCallback) throws Exception {
+        testPostFile(file, onResponseCallback);
     }
-    private static final MediaType MEDIA_TYPE_PLAINTEXT = MediaType
-            .parse("audio/mpeg3");
-    private final OkHttpClient client = new OkHttpClient();
 
 
-    public void testPostFile(File file) throws Exception {
+
+    public void testPostFile(File file, Callback onResponseCallback) throws Exception {
         Request request = new Request.Builder()
                 .url("https://cfa37ad5-35b7-4abd-8256-fa50e2422d20.mock.pstmn.io/posttest")
                 .post(RequestBody.create(MEDIA_TYPE_PLAINTEXT, file))
                 .build();
 
-        Response response = client.newCall(request).execute();
-        System.out.println(response.body().string());
+        client.newCall(request).enqueue(onResponseCallback);
         //assertTrue(response.isSuccessful());
 
     }
