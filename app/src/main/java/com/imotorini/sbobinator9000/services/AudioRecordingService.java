@@ -17,17 +17,23 @@ import android.provider.MediaStore;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.net.URL;
+import java.util.Objects;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -49,6 +55,8 @@ public class AudioRecordingService {
     private File file;
     private static final MediaType MEDIA_TYPE_PLAINTEXT = MediaType.parse("audio/mpeg3");
     private final OkHttpClient client = new OkHttpClient();
+
+    private static final String TAG = "AudioRecordingService";
 
     public AudioRecordingService(ContentResolver contentResolver, Context context, Activity activity) {
         this.contentResolver = contentResolver;
@@ -82,16 +90,16 @@ public class AudioRecordingService {
             audioRecorder.setAudioChannels(1);
             audioRecorder.prepare();
             audioRecorder.start();
-            this.audiouri=audiouri;
+            this.audiouri = audiouri;
         }
 
     }
 
     public void stopRecording() throws Exception {
         audioRecorder.stop();
-        file= new File(audiouri.getPath());
+        file = new File(audiouri.getPath());
 
-        Toast.makeText(context, "new file audio recorded in "+file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "new file audio recorded in " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
 
         Callback onResponseCallback = new Callback() {
             @Override
@@ -113,33 +121,31 @@ public class AudioRecordingService {
     }
 
 
-
     public void testPostFile(File file, Callback onResponseCallback) throws Exception {
         Request request = new Request.Builder()
-                .url("https://cfa37ad5-35b7-4abd-8256-fa50e2422d20.mock.pstmn.io/posttest")
+                .url(new URL("http://10.0.2.2:9999/api/stt"))
                 .post(RequestBody.create(MEDIA_TYPE_PLAINTEXT, file))
                 .build();
 
         client.newCall(request).enqueue(onResponseCallback);
-        //assertTrue(response.isSuccessful());
-
     }
-    private void getMicrophonePermission(){
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED){
-            ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.RECORD_AUDIO}
-                    ,MICROPHONE_PERMISSION_CODE);
+
+    private void getMicrophonePermission() {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.RECORD_AUDIO}
+                    , MICROPHONE_PERMISSION_CODE);
         }
 
     }
 
     private void getStoragePermission() {
 
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)==PackageManager.PERMISSION_DENIED){
-            ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},R_PERMISSION_CODE);
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, R_PERMISSION_CODE);
         }
 
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)==PackageManager.PERMISSION_DENIED){
-            ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},W_PERMISSION_CODE);
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, W_PERMISSION_CODE);
         }
     }
 }
