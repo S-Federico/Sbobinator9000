@@ -19,6 +19,11 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField("String", "STT_BASE_URL", "\"http://10.0.2.2:9999\"")
+        }
+        debug {
+            minifyEnabled false
+            buildConfigField("String", "STT_BASE_URL", "\"http://10.0.2.2:9999\"")
         }
     }
     compileOptions {

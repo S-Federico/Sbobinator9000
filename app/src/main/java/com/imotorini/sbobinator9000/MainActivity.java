@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.imotorini.sbobinator9000.services.AudioRecordingService;
+import com.imotorini.sbobinator9000.services.TranscriptionService;
 
 import java.io.IOException;
 
@@ -34,10 +35,13 @@ public class MainActivity extends AppCompatActivity {
         isRecordingTextView = findViewById(R.id.is_recording_tv);
         transcribeButton= findViewById(R.id.btn_transcribe);
 
+        TranscriptionService transcriptionService = new TranscriptionService();
+
         audioRecordingService = new AudioRecordingService(
                 getContentResolver(),
                 getApplicationContext(),
-                this
+                this,
+                transcriptionService
         );
 
         initializeWidgets();

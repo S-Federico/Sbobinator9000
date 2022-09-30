@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.speech.SpeechRecognizer;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -42,15 +43,15 @@ public class AudioRecordingService {
     private MediaRecorder audioRecorder;
     private Uri audiouri;
     private File file;
-    private static final MediaType MEDIA_TYPE_PLAINTEXT = MediaType.parse("audio/mpeg3");
-    private final OkHttpClient client = new OkHttpClient();
+    private final TranscriptionService transcriptionService;
 
     private static final String TAG = "AudioRecordingService";
 
-    public AudioRecordingService(ContentResolver contentResolver, Context context, Activity activity) {
+    public AudioRecordingService(ContentResolver contentResolver, Context context, Activity activity, TranscriptionService transcriptionService) {
         this.contentResolver = contentResolver;
         this.context = context;
         this.activity = activity;
+        this.transcriptionService = transcriptionService;
     }
 
     public void startRecording() throws IOException {
@@ -93,12 +94,12 @@ public class AudioRecordingService {
         Callback onResponseCallback = new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                System.err.println(e);
+                Log.e(TAG, "Error: " + e);
             }
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                System.out.println(response.body().string());
+                Log.e(TAG, "Response: " + (response.body() != null ? response.body().string() : null));
             }
         };
 
@@ -106,17 +107,7 @@ public class AudioRecordingService {
     }
 
     public void transcribe(Callback onResponseCallback) throws Exception {
-        testPostFile(file, onResponseCallback);
-    }
-
-
-    public void testPostFile(File file, Callback onResponseCallback) throws Exception {
-        Request request = new Request.Builder()
-                .url(new URL("http://10.0.2.2:9999/api/stt"))
-                .post(RequestBody.create(MEDIA_TYPE_PLAINTEXT, file))
-                .build();
-
-        client.newCall(request).enqueue(onResponseCallback);
+        transcriptionService.transcribe(file, onResponseCallback);
     }
 
     private void getMicrophonePermission() {
