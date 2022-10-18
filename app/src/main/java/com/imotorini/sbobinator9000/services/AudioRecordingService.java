@@ -10,7 +10,6 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
-import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,14 +19,9 @@ import androidx.core.content.ContextCompat;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class AudioRecordingService {
@@ -38,7 +32,6 @@ public class AudioRecordingService {
 
     private final ContentResolver contentResolver;
     private final Context context;
-    private SpeechRecognizer speechRecognizer;
     private final Activity activity;
     private MediaRecorder audioRecorder;
     private Uri audiouri;
