@@ -12,22 +12,20 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.imotorini.sbobinator9000.services.AudioRecordingService;
 import com.imotorini.sbobinator9000.services.TranscriptionService;
+import com.imotorini.sbobinator9000.utils.Utils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
+
+import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
-import org.apache.commons.io.IOUtils;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private Button transcribeButton;
     private TextView isRecordingTextView;
     private boolean isRecording = false;
-    private final int RESULT_CODE_FILEPICKER=200;
+    private final int RESULT_CODE_FILEPICKER = 200;
 
     private AudioRecordingService audioRecordingService;
     private TranscriptionService transcriptionService;
@@ -50,9 +48,9 @@ public class MainActivity extends AppCompatActivity {
 
         recorderButton = findViewById(R.id.recorder_button);
         isRecordingTextView = findViewById(R.id.is_recording_tv);
-        transcribeButton= findViewById(R.id.btn_transcribe);
+        transcribeButton = findViewById(R.id.btn_transcribe);
 
-        TranscriptionService transcriptionService = new TranscriptionService();
+        transcriptionService = new TranscriptionService();
 
         audioRecordingService = new AudioRecordingService(
                 getContentResolver(),
@@ -95,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
                 updateUI();
             }
         });
-        transcribeButton.setOnClickListener(new View.OnClickListener(){
+        transcribeButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
@@ -104,46 +102,54 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void startActivityFilePicker(){
+    private void startActivityFilePicker() {
         Intent chooseFileIntent = new Intent(Intent.ACTION_GET_CONTENT);
         chooseFileIntent.setType("*/*");
 
         chooseFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
-        chooseFileIntent= Intent.createChooser(chooseFileIntent,"Choose the file to transcribe");
-        startActivityForResult(chooseFileIntent,RESULT_CODE_FILEPICKER);
+        chooseFileIntent = Intent.createChooser(chooseFileIntent, "Choose the file to transcribe");
+        startActivityForResult(chooseFileIntent, RESULT_CODE_FILEPICKER);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Uri fileUri=null;
-        File file = null;
-        switch(requestCode){
+        switch (requestCode) {
             case RESULT_CODE_FILEPICKER:
-                if(resultCode== Activity.RESULT_OK){
-                    if(data!= null){
-                        fileUri=data.getData();
+                if (resultCode == Activity.RESULT_OK) {
+                    if (data != null) {
+                        Uri fileUri = data.getData();
                         try {
-                            InputStream is = getContentResolver().openInputStream(fileUri);
-                            byte[] bytes = org.apache.commons.io.IOUtils.toByteArray(is);
-                            Response response=
-                                    transcriptionService.transcribe(bytes);
-                            Toast.makeText(this.getApplicationContext(), String.valueOf(response.isSuccessful()), Toast.LENGTH_SHORT).show();
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                            //byte[] fileData = Utils.fileToBytes(file);
+                            byte[] fileData = Utils.fileToBytes(fileUri, getApplicationContext());
+
+                            transcriptionService.transcribe(fileData, new Callback() {
+                                @Override
+                                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                                    Log.e(TAG, "FAIL");
+                                }
+
+                                @Override
+                                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                    Log.d(TAG, "SUCCESS");
+
+                                }
+                            });
+                        } catch (RuntimeException | IOException e) {
+                            Log.e(TAG, "Error while creating file from picker uri. Details: " + e.getMessage());
                         }
                     }
                 }
+            default:
+                // Nothing
         }
     }
 
     private String getRealPathFromURI(Context context, Uri contentUri) {
         Cursor cursor = null;
         try {
-            String[] proj = { MediaStore.Audio.Media.DATA };
-            cursor = context.getContentResolver().query(contentUri,  proj, null, null, null);
+            String[] proj = {MediaStore.Audio.Media.DATA};
+            cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
             int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
             cursor.moveToFirst();
             return cursor.getString(column_index);

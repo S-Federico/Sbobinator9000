@@ -26,7 +26,7 @@ public class TranscriptionService {
         this.client = new OkHttpClient();
     }
 
-    public Response transcribe(byte[] file) {
+    private Response transcribe(byte[] file) {
 
         Request request;
         request = new Request.Builder()
@@ -43,10 +43,10 @@ public class TranscriptionService {
         }
         return response;
     }
+
     public void transcribe(byte[] file, Callback onResponseCallback) {
 
-        Request request;
-        request = new Request.Builder()
+        Request request = new Request.Builder()
                 .url(BuildConfig.STT_BASE_URL + Constants.STT_PATH)
                 .post(RequestBody.create(file, MEDIA_TYPE_PLAINTEXT))
                 .build();

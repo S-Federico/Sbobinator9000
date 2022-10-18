@@ -30,16 +30,16 @@ public class TranscriptionServiceTest {
     public void transcribeTest() {
         TranscriptionService service = new TranscriptionService();
         File f = new File("");
-        service.transcribe(f, new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-
-            }
-        });
+//        service.transcribe(f, new Callback() {
+//            @Override
+//            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+//
+//            }
+//
+//            @Override
+//            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+//
+//            }
+//        });
     }
 }
