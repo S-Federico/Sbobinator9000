@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         isRecordingTextView = findViewById(R.id.is_recording_tv);
         transcribeButton = findViewById(R.id.btn_transcribe);
 
-        transcriptionService = new TranscriptionService();
+        transcriptionService = new TranscriptionService(BuildConfig.STT_BASE_URL);
 
         audioRecordingService = new AudioRecordingService(
                 getContentResolver(),
@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                             //byte[] fileData = Utils.fileToBytes(file);
                             byte[] fileData = Utils.fileToBytes(fileUri, getApplicationContext());
 
-                            transcriptionService.transcribe(fileData, new Callback() {
+                            transcriptionService.transcribeAsync(fileData, new Callback() {
                                 @Override
                                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                                     Log.e(TAG, "FAIL");

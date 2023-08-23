@@ -107,7 +107,7 @@ public class AudioRecordingService {
     }
 
     public void transcribe(byte[] fileData, Callback onResponseCallback) throws Exception {
-        transcriptionService.transcribe(fileData, onResponseCallback);
+        transcriptionService.transcribeAsync(fileData, onResponseCallback);
     }
 
     private void getMicrophonePermission() {
