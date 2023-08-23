@@ -57,10 +57,7 @@ jobs:
         with:
           name: apk
       - name: Compute version
-        run: echo "::num_minor=$(git log --grep ^MINOR_RELEASE$ --oneline | wc -l) && \
-  num_major=$(git log --grep ^MAJOR_RELEASE$ --oneline | wc -l) && \
-  num_revision=$(git log --grep ^REVISION_RELEASE$ --oneline | wc -l) && \
-  VERSION=$num_major.$num_minor.$num_revision"
+        run: echo "::num_minor=$(git log --grep ^MINOR_RELEASE$ --oneline | wc -l) && num_major=$(git log --grep ^MAJOR_RELEASE$ --oneline | wc -l) && num_revision=$(git log --grep ^REVISION_RELEASE$ --oneline | wc -l) && VERSION=$num_major.$num_minor.$num_revision"
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
