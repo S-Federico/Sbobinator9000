@@ -1,5 +1,6 @@
 package com.imotorini.sbobinator9000;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import androidx.annotation.NonNull;
@@ -12,7 +13,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import okhttp3.OkHttpClient;
 import okhttp3.Response;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -21,22 +21,13 @@ import okhttp3.mockwebserver.RecordedRequest;
 
 
 public class TranscriptionServiceTest {
-
     private static MockWebServer server;
-    static private OkHttpClient okHttpClient;
-
     @BeforeClass
     public static void setup() throws IOException {
-        // Create a MockWebServer. These are lean enough that you can create a new
-        // instance for every unit test.
-        okHttpClient = new OkHttpClient();
-
         server = new MockWebServer();
-        server.start(80);
+        server.start(9999);
         server.url("http://127.0.0.1");
     }
-
-
 
     @AfterClass
     public static void tearDown() throws IOException {
@@ -60,10 +51,8 @@ public class TranscriptionServiceTest {
                 return new MockResponse().setBody("AAA").setResponseCode(200);
             }
         });
-
-
-        TranscriptionService service = new TranscriptionService("http://127.0.0.1");
-        Response response = service.transcribe("A".getBytes());
-        System.out.println(response.body().string());
+        TranscriptionService service = new TranscriptionService("http://127.0.0.1:9999");
+        Response response = service.transcribe("RandomByteValue".getBytes());
+        assertEquals("AAA", response.body().string());
     }
 }
