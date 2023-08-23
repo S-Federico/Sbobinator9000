@@ -81,4 +81,10 @@
 
     </LinearLayout>
 
+    <ImageButton
+        android:id="@+id/imageButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:srcCompat="@android:drawable/ic_btn_speak_now" />
+
 </LinearLayout>
