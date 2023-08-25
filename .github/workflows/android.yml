@@ -25,6 +25,10 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+        name: checkout code
+        with:
+          fetch-depth: 0
       - name: Generate TAG
         id: tag_step
         uses: paulhatch/semantic-version@v5.1.0
