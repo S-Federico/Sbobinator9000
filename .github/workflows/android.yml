@@ -20,10 +20,47 @@ jobs:
           distribution: 'temurin'
           cache: gradle
       - name: Run Tests
-        run: bash ./gradlew test --stacktrace  
-  build:
-    if: ${{ (github.event.head_commit.message == 'MAJOR_RELEASE') || (github.event.head_commit.message == 'MINOR_RELEASE') || (github.event.head_commit.message == 'REVISION_RELEASE') }}
+        run: bash ./gradlew test --stacktrace
+  tag:
     needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate TAG
+      - uses: paulhatch/semantic-version@v5.1.0
+        with:
+          # Documentation: https://github.com/marketplace/actions/git-semantic-version
+          # The prefix to use to identify tags
+          tag_prefix: "v"
+          # A string which, if present in a git commit, indicates that a change represents a
+          # major (breaking) change, supports regular expressions wrapped with '/'
+          major_pattern: "(MAJOR)"
+          # A string which indicates the flags used by the `major_pattern` regular expression. Supported flags: idgs
+          major_regexp_flags: ""
+          # Same as above except indicating a minor change, supports regular expressions wrapped with '/'
+          minor_pattern: "(MINOR)"
+          # A string which indicates the flags used by the `minor_pattern` regular expression. Supported flags: idgs
+          minor_regexp_flags: ""
+          # A string to determine the format of the version output
+          version_format: "${major}.${minor}.${patch}-rc{increment}"
+          # Optional path to check for changes. If any changes are detected in the path the
+          # 'changed' output will true. Enter multiple paths separated by spaces.
+          #change_path: "src/my-service"
+          # Named version, will be used as suffix for name version tag
+          namespace: sbobinator
+          # If this is set to true, *every* commit will be treated as a new version.
+          bump_each_commit: false
+          # If bump_each_commit is also set to true, setting this value will cause the version to increment only if the pattern specified is matched.
+          bump_each_commit_patch_pattern: ""
+          # If true, the body of commits will also be searched for major/minor patterns to determine the version type.
+          search_commit_body: true
+          # The output method used to generate list of users, 'csv' or 'json'.
+          user_format_type: "csv"
+          # Prevents pre-v1.0.0 version from automatically incrementing the major version.
+          # If enabled, when the major version is 0, major releases will be treated as minor and minor as patch. Note that the version_type output is unchanged.
+          enable_prerelease_mode: true
+  build:
+    if: ${{ steps.tag.output.is_tagged }}
+    needs: tag
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -49,7 +86,8 @@ jobs:
     name: Release APK
     needs: build
     #if: startsWith(github.ref, 'refs/tags/v')
-    if: ${{ (github.event.head_commit.message == 'MAJOR_RELEASE') || (github.event.head_commit.message == 'MINOR_RELEASE') || (github.event.head_commit.message == 'REVISION_RELEASE') }}
+    #if: ${{ (github.event.head_commit.message == 'MAJOR_RELEASE') || (github.event.head_commit.message == 'MINOR_RELEASE') || (github.event.head_commit.message == 'REVISION_RELEASE') }}
+    if: ${{ steps.tag.output.is_tagged }}
     runs-on: ubuntu-latest
     steps:
       - name: Download APK from build
@@ -68,9 +106,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.release.outputs.VERSION }}
+          tag_name: ${{ steps.tag.outputs.version }}
           #tag_name: 1.0
-          release_name: Release ${{ steps.release.outputs.VERSION }}
+          release_name: Release ${{ steps.tag.outputs.version }}
           #release_name: Release 1.0
       - name: Upload Release APK
         id: upload_release_asset
