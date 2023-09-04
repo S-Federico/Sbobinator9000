@@ -64,12 +64,13 @@ jobs:
           # If enabled, when the major version is 0, major releases will be treated as minor and minor as patch. Note that the version_type output is unchanged.
           enable_prerelease_mode: true
       - name: Print results
+        id: print_results
         run: |
-          echo "version: ${{ steps.tag_step.outputs.version_tag }}"
-          echo "is_tagged: ${{ steps.tag_step.outputs.is_tagged }}"
+          echo "version=${{ steps.tag_step.outputs.version_tag }}" >> $GITHUB_OUTPUT
+          echo "is_tagged=${{ steps.tag_step.outputs.is_tagged }}" >> $GITHUB_OUTPUT
     outputs:
-      is_tagged: ${{ steps.tag_step.outputs.is_tagged }}
-      version: ${{ steps.tag_step.outputs.version_tag }}
+      is_tagged: ${{ steps.print_results.outputs.is_tagged }}
+      version: ${{ steps.print_results.outputs.version_tag }}
   build:
     #if: ${{ needs.tag.outputs.is_tagged }}
     if: ${{ github.ref_name == 'main' }}
