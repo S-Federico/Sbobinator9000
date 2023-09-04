@@ -70,7 +70,7 @@ jobs:
           echo "is_tagged=${{ steps.tag_step.outputs.is_tagged }}" >> $GITHUB_OUTPUT
     outputs:
       is_tagged: ${{ steps.print_results.outputs.is_tagged }}
-      version: ${{ steps.print_results.outputs.version_tag }}
+      version: ${{ steps.print_results.outputs.version }}
   build:
     #if: ${{ needs.tag.outputs.is_tagged }}
     if: ${{ github.ref_name == 'main' }}
