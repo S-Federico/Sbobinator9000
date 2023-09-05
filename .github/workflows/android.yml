@@ -2,9 +2,9 @@ name: Android CI
 
 on:
   push:
-    branches: [ "main", "dev", "**"]
+#    branches: [ "main", "dev", "**"]
   pull_request:
-    branches: [ "main", "dev", "**" ]
+#    branches: [ "main", "dev", "**" ]
 
 jobs:
   test:
@@ -74,7 +74,7 @@ jobs:
   build:
     #if: ${{ needs.tag.outputs.is_tagged }}
     if: ${{ github.ref_name == 'main' }}
-    needs: tag
+    needs: test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
