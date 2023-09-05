@@ -21,8 +21,88 @@ jobs:
           cache: gradle
       - name: Run Tests
         run: bash ./gradlew test --stacktrace
-  tag:
-    needs: test
+#  tag:
+#    needs: test
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#        name: checkout code
+#        with:
+#          fetch-depth: 0
+#      - name: Generate TAG
+#        id: tag_step
+#        uses: paulhatch/semantic-version@v5.1.0
+#        with:
+#          # Documentation: https://github.com/marketplace/actions/git-semantic-version
+#          # The prefix to use to identify tags
+#          tag_prefix: "v"
+#          # A string which, if present in a git commit, indicates that a change represents a
+#          # major (breaking) change, supports regular expressions wrapped with '/'
+#          major_pattern: "(MAJOR)"
+#          # A string which indicates the flags used by the `major_pattern` regular expression. Supported flags: idgs
+#          major_regexp_flags: ""
+#          # Same as above except indicating a minor change, supports regular expressions wrapped with '/'
+#          minor_pattern: "(MINOR)"
+#          # A string which indicates the flags used by the `minor_pattern` regular expression. Supported flags: idgs
+#          minor_regexp_flags: ""
+#          # A string to determine the format of the version output
+#          version_format: "${major}.${minor}.${patch}-rc${increment}"
+#          # Optional path to check for changes. If any changes are detected in the path the
+#          # 'changed' output will true. Enter multiple paths separated by spaces.
+#          #change_path: "src/my-service"
+#          # Named version, will be used as suffix for name version tag
+#          namespace: sbobinator
+#          # If this is set to true, *every* commit will be treated as a new version.
+#          bump_each_commit: false
+#          # If bump_each_commit is also set to true, setting this value will cause the version to increment only if the pattern specified is matched.
+#          bump_each_commit_patch_pattern: ""
+#          # If true, the body of commits will also be searched for major/minor patterns to determine the version type.
+#          search_commit_body: false
+#          # The output method used to generate list of users, 'csv' or 'json'.
+#          user_format_type: "csv"
+#          # Prevents pre-v1.0.0 version from automatically incrementing the major version.
+#          # If enabled, when the major version is 0, major releases will be treated as minor and minor as patch. Note that the version_type output is unchanged.
+#          enable_prerelease_mode: true
+#      - name: Print results
+#        id: print_results
+#        run: |
+#          echo "app_version=${{ steps.tag_step.outputs.version_tag }}" >> "$GITHUB_ENV"
+#          echo "app_is_tagged=${{ steps.tag_step.outputs.is_tagged }}" >> "$GITHUB_ENV"
+#    outputs:
+#      app_is_tagged: ${{ steps.print_results.outputs.app_is_tagged }}
+#      app_version: ${{ steps.print_results.outputs.app_version }}
+  build:
+    #if: ${{ needs.tag.outputs.is_tagged }}
+    if: ${{ github.ref_name == 'main' }}
+    needs: tag
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      name: checkout code
+    - name: set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        cache: gradle
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Build with Gradle
+      run: ./gradlew build
+    - name: Build APK
+      run: bash ./gradlew assembleDebug --stacktrace
+    - name: Upload APK
+      uses: actions/upload-artifact@v1
+      with:
+        name: apk
+        path: app/build/outputs/apk/debug/app-debug.apk
+  release:
+    name: Release APK
+    needs: build
+    #if: startsWith(github.ref, 'refs/tags/v')
+    #if: ${{ (github.event.head_commit.message == 'MAJOR_RELEASE') || (github.event.head_commit.message == 'MINOR_RELEASE') || (github.event.head_commit.message == 'REVISION_RELEASE') }}
+    #if: ${{ needs.tag.outputs.is_tagged }}
+    if: ${{ github.ref_name == 'main' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -63,48 +143,6 @@ jobs:
           # Prevents pre-v1.0.0 version from automatically incrementing the major version.
           # If enabled, when the major version is 0, major releases will be treated as minor and minor as patch. Note that the version_type output is unchanged.
           enable_prerelease_mode: true
-      - name: Print results
-        id: print_results
-        run: |
-          echo "app_version=${{ steps.tag_step.outputs.version_tag }}" >> "$GITHUB_OUTPUT"
-          echo "app_is_tagged=${{ steps.tag_step.outputs.is_tagged }}" >> "$GITHUB_OUTPUT"
-    outputs:
-      app_is_tagged: ${{ steps.print_results.outputs.app_is_tagged }}
-      app_version: ${{ steps.print_results.outputs.app_version }}
-  build:
-    #if: ${{ needs.tag.outputs.is_tagged }}
-    if: ${{ github.ref_name == 'main' }}
-    needs: tag
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-      name: checkout code
-    - name: set up JDK 11
-      uses: actions/setup-java@v3
-      with:
-        java-version: '11'
-        distribution: 'temurin'
-        cache: gradle
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build
-    - name: Build APK
-      run: bash ./gradlew assembleDebug --stacktrace
-    - name: Upload APK
-      uses: actions/upload-artifact@v1
-      with:
-        name: apk
-        path: app/build/outputs/apk/debug/app-debug.apk
-  release:
-    name: Release APK
-    needs: build
-    #if: startsWith(github.ref, 'refs/tags/v')
-    #if: ${{ (github.event.head_commit.message == 'MAJOR_RELEASE') || (github.event.head_commit.message == 'MINOR_RELEASE') || (github.event.head_commit.message == 'REVISION_RELEASE') }}
-    #if: ${{ needs.tag.outputs.is_tagged }}
-    if: ${{ github.ref_name == 'main' }}
-    runs-on: ubuntu-latest
-    steps:
       - name: Download APK from build
         uses: actions/download-artifact@v1
         with:
@@ -115,9 +153,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ needs.tag.outputs.app_version }}
+          tag_name: ${{ steps.tag_step.outputs.version_tag }}
           #tag_name: 1.0
-          release_name: Release ${{ needs.tag.outputs.app_version }}
+          release_name: Release ${{ steps.tag_step.outputs.version_tag }}
           #release_name: Release 1.0
       - name: Upload Release APK
         id: upload_release_asset
