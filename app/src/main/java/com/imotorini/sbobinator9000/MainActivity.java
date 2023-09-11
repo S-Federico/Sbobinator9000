@@ -19,7 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.imotorini.sbobinator9000.services.AudioRecordingService;
 import com.imotorini.sbobinator9000.services.TranscriptionService;
-import com.imotorini.sbobinator9000.utils.Utils;
+import com.imotorini.sbobinator9000.utils.CustomAndroidUtils;
 
 import java.io.IOException;
 
@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                         Uri fileUri = data.getData();
                         try {
                             //byte[] fileData = Utils.fileToBytes(file);
-                            byte[] fileData = Utils.fileToBytes(fileUri, getApplicationContext());
+                            byte[] fileData = CustomAndroidUtils.fileToBytes(fileUri, getApplicationContext());
 
                             transcriptionService.transcribeAsync(fileData, new Callback() {
                                 @Override
@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             default:
-                // Nothing
+                Log.i(TAG, "Received " + requestCode + " as ActivityResult.");
         }
     }
 
