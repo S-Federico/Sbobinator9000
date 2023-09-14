@@ -19,20 +19,25 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
           cache: gradle
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
       - name: Run Tests
-        run: bash ./gradlew test --stacktrace
+        run: ./gradlew test --stacktrace
       - name: Run lint
-        run: bash ./gradlew lintDebug
+        run: ./gradlew lintDebug
       - name: Upload test report
         uses: actions/upload-artifact@v2
         with:
           name: lint.html
           path: app/build/reports/lint-results-debug.html
-      - name: Run espresso tests
+      - name: Instrumentation Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 31
-          script: bash ./gradlew connectedCheck
+          api-level: 29
+          target: default
+          arch: x86
+          profile: Nexus 6
+          script: ./gradlew connectedCheck --stacktrace
       - name: Upload test report
         uses: actions/upload-artifact@v2
         with:
