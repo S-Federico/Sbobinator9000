@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -17,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.imotorini.sbobinator9000.services.AudioRecordingService;
 import com.imotorini.sbobinator9000.services.TranscriptionService;
 import com.imotorini.sbobinator9000.utils.Utils;
@@ -29,8 +29,8 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ImageButton recorderButton;
-    private Button transcribeButton;
+    private FloatingActionButton recorderButton;
+    private ImageButton transcribeButton;
     private TextView isRecordingTextView;
     private boolean isRecording = false;
     private final int RESULT_CODE_FILEPICKER = 200;
@@ -46,9 +46,9 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onCrate called");
         setContentView(R.layout.activity_main);
 
-        recorderButton = findViewById(R.id.recorder_button);
-        isRecordingTextView = findViewById(R.id.is_recording_tv);
-        transcribeButton = findViewById(R.id.btn_transcribe);
+        recorderButton = findViewById(R.id.recbutt);
+        isRecordingTextView = findViewById(R.id.timer);
+        transcribeButton = findViewById(R.id.transcribe);
 
         transcriptionService = new TranscriptionService(BuildConfig.STT_BASE_URL);
 
@@ -94,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         transcribeButton.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View view) {
                 startActivityFilePicker();

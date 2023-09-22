@@ -1,13 +1,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!---
     <item
-        android:id="@+id/action_button1"
+        android:id="@+id/playpause"
         android:icon="@drawable/play_pause_24"
         android:title="Button 1"
         app:showAsAction="always"/>
     <item
-        android:id="@+id/action_button2"
+        android:id="@+id/transcribe"
         android:icon="@drawable/pen_field_24"
         android:title="Button 2"
-        app:showAsAction="always" />
+        app:showAsAction="always"/>
+        -->
 </menu>

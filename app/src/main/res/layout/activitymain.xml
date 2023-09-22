@@ -10,9 +10,9 @@
     <!-- Contenuto principale dell'activity -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
-        <!-- Aggiungi qui il tuo contenuto -->
+        <!-- Top App Bar -->
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appBarLayout3"
             android:layout_width="0dp"
@@ -32,8 +32,25 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Elenco delle registrazioni salvate -->
+        <ListView
+            android:id="@+id/listRecordings"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:divider="@android:color/darker_gray"
+            android:dividerHeight="1dp"
+            android:paddingTop="16dp"/>
+
+    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
     <!-- Bottom App Bar -->
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottom_app_bar"
@@ -68,6 +85,7 @@
         app:layout_anchor="@id/bottom_app_bar"
         app:srcCompat="@drawable/microphone_24"
         tools:ignore="SpeakableTextPresentCheck" />
+
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
