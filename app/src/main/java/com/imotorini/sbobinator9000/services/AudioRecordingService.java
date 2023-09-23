@@ -29,6 +29,9 @@ import okhttp3.Response;
 
 public class AudioRecordingService {
 
+
+    private boolean paused = false;
+    private boolean recording = false;
     private static final int MICROPHONE_PERMISSION_CODE = 12;
     private static final int R_PERMISSION_CODE = 13;
     private static final int W_PERMISSION_CODE = 14;
@@ -51,7 +54,7 @@ public class AudioRecordingService {
     }
 
     public void startRecording() throws IOException {
-
+        recording=true;
         getMicrophonePermission();
         getStoragePermission();
 
@@ -82,7 +85,26 @@ public class AudioRecordingService {
 
     }
 
+    public void pauseRecording() {
+        if (!paused) {
+            if (audioRecorder != null) {
+                audioRecorder.pause();
+                paused = true;
+            }
+        }
+    }
+
+    public void resumeRecording() {
+        if (paused) {
+            if (audioRecorder != null) {
+                audioRecorder.resume();
+                paused = false;
+            }
+        }
+    }
+
     public void stopRecording() throws Exception {
+        recording=false;
         audioRecorder.stop();
         audioRecorder.release();
         audioRecorder = null;

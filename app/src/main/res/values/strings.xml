@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Sbobinator9000</string>
-    <string name="recording">Recording</string>
+    <string name="recording_time">Recording: %1$d:%2$02d</string>
     <string name="not_recording">Not recording</string>
 </resources>
