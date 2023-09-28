@@ -7,41 +7,13 @@
     android:background="@android:color/white"
     tools:context=".MainActivity">
 
-    <!-- Contenitore principale -->
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/timer"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <!-- Top App Bar -->
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/appBarLayout3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/topAppBar"
-                style="@style/Widget.MaterialComponents.Toolbar.Primary"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:menu="@menu/top_app_bar_menu"
-                app:navigationIcon="@drawable/microphone_24"
-                app:title="Recorder" />
-
-        </com.google.android.material.appbar.AppBarLayout>
-
-        <!-- Elenco delle registrazioni con padding -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="238dp"
-            android:layout_weight="1"
-            android:paddingStart="16dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="8dp" />
-
-    </LinearLayout>
+        android:text="@string/not_recording"
+        android:textSize="48sp"
+        android:layout_gravity="center"/>
 
     <!-- Bottom App Bar -->
     <com.google.android.material.bottomappbar.BottomAppBar
@@ -51,21 +23,6 @@
         android:layout_gravity="bottom"
         app:fabCradleRoundedCornerRadius="10dp"/>
 
-    <!-- Timer -->
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|start"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="16dp">
-
-        <TextView
-            android:id="@+id/timer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="00:00"
-            android:textSize="18sp"/>
-    </RelativeLayout>
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -77,10 +34,10 @@
             android:id="@+id/playpause"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/pause"
-            android:background="?android:attr/selectableItemBackground"
             android:layout_marginEnd="16dp"
-            android:visibility="gone"/> <!-- Inizialmente nascosto -->
+            android:background="?android:attr/selectableItemBackground"
+            android:src="@drawable/pause"
+            android:visibility="gone" /> <!-- Inizialmente nascosto -->
 
         <ImageButton
             android:id="@+id/transcribe"
@@ -88,7 +45,8 @@
             android:layout_height="48dp"
             android:src="@drawable/pen_field_24"
             android:background="?android:attr/selectableItemBackground"
-            android:layout_toRightOf="@+id/playpause" />
+            android:layout_toRightOf="@+id/playpause"
+            tools:ignore="SpeakableTextPresentCheck"/>
     </RelativeLayout>
 
     <!-- Floating Action Button (FAB) -->
@@ -100,10 +58,11 @@
         android:layout_margin="@dimen/fab_margin"
         android:clickable="true"
         app:borderWidth="0.5dp"
-        app:elevation="6dp"
-        app:layout_anchor="@id/bottom_app_bar"
-        app:srcCompat="@drawable/microphone_24"
-        tools:ignore="SpeakableTextPresentCheck" />
-
+        app:elevation="5dp"
+        app:layout_anchor="@+id/bottom_app_bar"
+        app:layout_anchorGravity="top|center"
+        app:srcCompat="@drawable/microphone_48"
+        tools:ignore="SpeakableTextPresentCheck"
+        app:fabCustomSize="70dp"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
