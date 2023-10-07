@@ -32,9 +32,7 @@ public class AudioRecordingService {
 
     private boolean paused = false;
     private boolean recording = false;
-    private static final int MICROPHONE_PERMISSION_CODE = 12;
-    private static final int R_PERMISSION_CODE = 13;
-    private static final int W_PERMISSION_CODE = 14;
+
 
     private final ContentResolver contentResolver;
     private final Context context;
@@ -55,8 +53,6 @@ public class AudioRecordingService {
 
     public void startRecording() throws IOException {
         recording=true;
-        getMicrophonePermission();
-        getStoragePermission();
 
         String fileName = "Recording " + LocalDateTime.now().format(Constants.defaultDateTimeFormatter) + ".mp3";
         ContentValues values = new ContentValues(4);
@@ -132,22 +128,4 @@ public class AudioRecordingService {
         transcriptionService.transcribeAsync(fileData, onResponseCallback);
     }
 
-    private void getMicrophonePermission() {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.RECORD_AUDIO}
-                    , MICROPHONE_PERMISSION_CODE);
-        }
-
-    }
-
-    private void getStoragePermission() {
-
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, R_PERMISSION_CODE);
-        }
-
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, W_PERMISSION_CODE);
-        }
-    }
 }
