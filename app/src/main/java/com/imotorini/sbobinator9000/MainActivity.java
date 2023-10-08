@@ -2,18 +2,21 @@ package com.imotorini.sbobinator9000;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,7 +29,13 @@ import com.imotorini.sbobinator9000.services.AudioRecordingService;
 import com.imotorini.sbobinator9000.services.TranscriptionService;
 import com.imotorini.sbobinator9000.utils.Utils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -226,13 +235,54 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                                     Log.e(TAG, "FAIL");
-                                }
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(MainActivity.this, "Error occurred in transcription", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });                                }
 
                                 @Override
                                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                                     Log.d(TAG, "SUCCESS");
 
+                                    if (!response.isSuccessful() || response.body() == null) {
+                                        Log.e(TAG, "Failed to get the transcription");
+                                        return;
+                                    }
+
+                                    try {
+                                        JSONObject jsonObject = new JSONObject(response.body().string());
+                                        String transcription = jsonObject.getString("data");
+                                        runOnUiThread(() -> Toast.makeText(MainActivity.this, transcription, Toast.LENGTH_SHORT).show());
+                                        ContentValues values = new ContentValues();
+                                        values.put(MediaStore.MediaColumns.DISPLAY_NAME, "transcription.txt");
+                                        values.put(MediaStore.MediaColumns.MIME_TYPE, "text/plain");
+                                        values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS);
+
+                                        Uri uri = getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
+
+                                        if (uri != null) {
+                                            try (OutputStream os = getContentResolver().openOutputStream(uri)) {
+                                                if (os != null) {
+                                                    os.write(transcription.getBytes());
+                                                    Log.d(TAG, "Transcription saved successfully");
+                                                }
+                                            } catch (IOException e) {
+                                                Log.e(TAG, "Error writing to file", e);
+                                            }
+                                        } else {
+                                            Log.e(TAG, "Failed to create new MediaStore record");
+                                        }
+                                    } catch (JSONException e) {
+                                        Log.e(TAG, "JSON Parsing Error", e);
+                                        runOnUiThread(() -> Toast.makeText(MainActivity.this, "Error occurred while parsing data", Toast.LENGTH_SHORT).show());
+                                    }
+
+
                                 }
+
+
                             });
                         } catch (RuntimeException | IOException e) {
                             Log.e(TAG, "Error while creating file from picker uri. Details: " + e.getMessage());
@@ -241,24 +291,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             default:
                 // Nothing
-        }
-    }
-
-    private String getRealPathFromURI(Context context, Uri contentUri) {
-        Cursor cursor = null;
-        try {
-            String[] proj = {MediaStore.Audio.Media.DATA};
-            cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
-            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            return cursor.getString(column_index);
-        } catch (Exception e) {
-            Log.e(TAG, "getRealPathFromURI Exception : " + e.toString());
-            return "";
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
         }
     }
 

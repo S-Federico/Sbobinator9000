@@ -63,15 +63,15 @@ public class AudioRecordingService {
 
         Uri audioUri = contentResolver.insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, values);
         ParcelFileDescriptor file = contentResolver.openFileDescriptor(audioUri, "w");
-        /*ContextWrapper contextWrapper = new ContextWrapper(activity.getApplicationContext());
-        File musicDirectory= contextWrapper.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-        File file = new File(musicDirectory,fileName);*/
+
         if (file != null) {
             audioRecorder = new MediaRecorder();
             audioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
             audioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
             audioRecorder.setOutputFile(file.getFileDescriptor());
+            audioRecorder.setAudioEncodingBitRate(16 * 44100);
+            audioRecorder.setAudioSamplingRate(44100);
             audioRecorder.setAudioChannels(1);
             audioRecorder.prepare();
             audioRecorder.start();
@@ -109,19 +109,6 @@ public class AudioRecordingService {
 
         Toast.makeText(context, "new file audio recorded in " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
 
-        Callback onResponseCallback = new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.e(TAG, "Error: " + e);
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                Log.e(TAG, "Response: " + (response.body() != null ? response.body().string() : null));
-            }
-        };
-
-        //transcribe(onResponseCallback);
     }
 
     public void transcribe(byte[] fileData, Callback onResponseCallback) throws Exception {
