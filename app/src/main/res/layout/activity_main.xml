@@ -4,24 +4,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:visibility="visible"
     tools:context=".MainActivity">
 
     <TextView
         android:id="@+id/timer"
+        style="@style/TextColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:text="@string/not_recording"
-        android:textSize="48sp"
-        android:layout_gravity="center"/>
+        android:textSize="48sp" />
 
-    <!-- Bottom App Bar -->
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottom_app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:fabCradleRoundedCornerRadius="10dp"/>
+        app:fabCradleRoundedCornerRadius="10dp" />
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -43,10 +43,10 @@
             android:id="@+id/transcribe"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/pen_field_24"
-            android:background="?android:attr/selectableItemBackground"
             android:layout_toRightOf="@+id/playpause"
-            tools:ignore="SpeakableTextPresentCheck"/>
+            android:background="?android:attr/selectableItemBackground"
+            android:src="@drawable/pen_field_24"
+            tools:ignore="SpeakableTextPresentCheck" />
     </RelativeLayout>
 
     <!-- Floating Action Button (FAB) -->
@@ -59,10 +59,10 @@
         android:clickable="true"
         app:borderWidth="0.5dp"
         app:elevation="5dp"
+        app:fabCustomSize="70dp"
         app:layout_anchor="@+id/bottom_app_bar"
         app:layout_anchorGravity="top|center"
         app:srcCompat="@drawable/microphone_48"
-        tools:ignore="SpeakableTextPresentCheck"
-        app:fabCustomSize="70dp"/>
+        tools:ignore="SpeakableTextPresentCheck" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
