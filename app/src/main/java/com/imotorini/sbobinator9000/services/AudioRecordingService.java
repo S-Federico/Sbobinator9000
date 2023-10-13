@@ -55,7 +55,7 @@ public class AudioRecordingService {
     public void startRecording() throws IOException {
         recording=true;
 
-        String fileName = "Recording " + LocalDateTime.now().format(Constants.defaultDateTimeFormatter) + ".mp3";
+        String fileName = "Recording " + LocalDateTime.now().format(Constants.defaultDateTimeFormatter) + ".aac";
         ContentValues values = new ContentValues(4);
         values.put(MediaStore.Audio.Media.TITLE, fileName);
         values.put(MediaStore.Audio.Media.DISPLAY_NAME, fileName);
@@ -68,7 +68,7 @@ public class AudioRecordingService {
         if (file != null) {
             audioRecorder = new MediaRecorder();
             audioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+            audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
             audioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
             audioRecorder.setOutputFile(file.getFileDescriptor());
             audioRecorder.setAudioEncodingBitRate(16 * 44100);
@@ -77,7 +77,6 @@ public class AudioRecordingService {
             audioRecorder.prepare();
             audioRecorder.start();
             this.audiouri = audioUri;
-            System.out.println(audioUri);
         }
 
     }
