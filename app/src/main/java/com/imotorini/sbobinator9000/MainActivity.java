@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private TranscriptionService transcriptionService;
 
     private static final String TAG = MainActivity.class.getName();
+    private WaveformView waveform;
 
 
     @Override
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         isRecordingTextView = findViewById(R.id.timer);
         playPauseButton = findViewById(R.id.playpause);
         transcribeButton = findViewById(R.id.transcribe);
+        waveform = findViewById(R.id.waveformView);
 
         transcriptionService = new TranscriptionService(BuildConfig.STT_BASE_URL);
 
@@ -89,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (isRecording) {
                     updateUI();
-                    handler.postDelayed(this, 1000); // Ripeti il Runnable ogni secondo
+                    handler.postDelayed(this, 100); // Ripeti il Runnable ogni 0.1 secondi
                 }
             }
         };
@@ -110,8 +112,11 @@ public class MainActivity extends AppCompatActivity {
             int minutes = seconds / 60;
             seconds = seconds % 60;
             isRecordingTextView.setText(getString(R.string.recording_time, minutes, seconds));
+
+            waveform.addAmplitude(audioRecordingService.getAmplitude());
         } else {
             isRecordingTextView.setText(getResources().getString(R.string.not_recording));
+            waveform.clearWaveform();
         }
     }
 

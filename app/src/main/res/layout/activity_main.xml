@@ -23,6 +23,14 @@
         android:layout_gravity="bottom"
         app:fabCradleRoundedCornerRadius="10dp" />
 
+    <com.imotorini.sbobinator9000.WaveformView
+        android:id="@+id/waveformView"
+        android:layout_width="match_parent"
+        android:layout_height="600px"
+        app:layout_anchor="@+id/recbutt"
+        android:layout_gravity="top"
+        android:layout_marginBottom="100dp"/>
+
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
