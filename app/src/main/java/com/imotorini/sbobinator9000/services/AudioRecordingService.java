@@ -6,6 +6,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
@@ -100,15 +101,31 @@ public class AudioRecordingService {
     }
 
     public void stopRecording() throws Exception {
-        recording=false;
+        recording = false;
         audioRecorder.stop();
         audioRecorder.release();
         audioRecorder = null;
-        System.out.println(audiouri.getPath());
-        file = new File(audiouri.getPath());
 
-        Toast.makeText(context, "new file audio recorded in " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+        String realPath = getRealPathFromURI(context, audiouri);
+        Log.d("AudioRecording", "Real Path: " + realPath);
 
+        file = new File(realPath);
+        Toast.makeText(context, "New file audio recorded in " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+    }
+
+    public String getRealPathFromURI(Context context, Uri contentUri) {
+        String[] projection = { MediaStore.Audio.Media.DATA };
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(contentUri, projection, null, null, null);
+            int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(columnIndex);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 
     public float getAmplitude() {
