@@ -6,6 +6,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
@@ -54,7 +55,7 @@ public class AudioRecordingService {
     public void startRecording() throws IOException {
         recording=true;
 
-        String fileName = "Recording " + LocalDateTime.now().format(Constants.defaultDateTimeFormatter) + ".mp3";
+        String fileName = "Recording " + LocalDateTime.now().format(Constants.defaultDateTimeFormatter) + ".aac";
         ContentValues values = new ContentValues(4);
         values.put(MediaStore.Audio.Media.TITLE, fileName);
         values.put(MediaStore.Audio.Media.DISPLAY_NAME, fileName);
@@ -67,7 +68,7 @@ public class AudioRecordingService {
         if (file != null) {
             audioRecorder = new MediaRecorder();
             audioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+            audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
             audioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
             audioRecorder.setOutputFile(file.getFileDescriptor());
             audioRecorder.setAudioEncodingBitRate(16 * 44100);
@@ -76,7 +77,6 @@ public class AudioRecordingService {
             audioRecorder.prepare();
             audioRecorder.start();
             this.audiouri = audioUri;
-            System.out.println(audioUri);
         }
 
     }
@@ -100,15 +100,35 @@ public class AudioRecordingService {
     }
 
     public void stopRecording() throws Exception {
-        recording=false;
+        recording = false;
         audioRecorder.stop();
         audioRecorder.release();
         audioRecorder = null;
-        System.out.println(audiouri.getPath());
-        file = new File(audiouri.getPath());
 
-        Toast.makeText(context, "new file audio recorded in " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+        String realPath = getRealPathFromURI(context, audiouri);
+        Log.d("AudioRecording", "Real Path: " + realPath);
 
+        file = new File(realPath);
+        Toast.makeText(context, "New file audio recorded in " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+    }
+
+    public String getRealPathFromURI(Context context, Uri contentUri) {
+        String[] projection = { MediaStore.Audio.Media.DATA };
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(contentUri, projection, null, null, null);
+            int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(columnIndex);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    public float getAmplitude() {
+        return (float) audioRecorder.getMaxAmplitude();
     }
 
     public void transcribe(byte[] fileData, Callback onResponseCallback) throws Exception {
