@@ -227,8 +227,8 @@ public class MainActivity extends AppCompatActivity {
                 if (resultCode == Activity.RESULT_OK) {
                     if (data != null) {
                         Uri fileUri = data.getData();
+                        String transcribedfilename=fileUri.getLastPathSegment();
                         try {
-                            //byte[] fileData = Utils.fileToBytes(file);
                             byte[] fileData = Utils.fileToBytes(fileUri, getApplicationContext());
 
                             transcriptionService.transcribeAsync(fileData, new Callback() {
@@ -256,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
                                         String transcription = jsonObject.getString("data");
                                         runOnUiThread(() -> Toast.makeText(MainActivity.this, transcription, Toast.LENGTH_SHORT).show());
                                         ContentValues values = new ContentValues();
-                                        values.put(MediaStore.MediaColumns.DISPLAY_NAME, "transcription.txt");
+                                        values.put(MediaStore.MediaColumns.DISPLAY_NAME, transcribedfilename+".txt");
                                         values.put(MediaStore.MediaColumns.MIME_TYPE, "text/plain");
                                         values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS);
 
