@@ -6,6 +6,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
@@ -29,9 +30,10 @@ import okhttp3.Response;
 
 public class AudioRecordingService {
 
-    private static final int MICROPHONE_PERMISSION_CODE = 12;
-    private static final int R_PERMISSION_CODE = 13;
-    private static final int W_PERMISSION_CODE = 14;
+
+    private boolean paused = false;
+    private boolean recording = false;
+
 
     private final ContentResolver contentResolver;
     private final Context context;
@@ -51,11 +53,9 @@ public class AudioRecordingService {
     }
 
     public void startRecording() throws IOException {
+        recording=true;
 
-        getMicrophonePermission();
-        getStoragePermission();
-
-        String fileName = "Recording " + LocalDateTime.now().format(Constants.defaultDateTimeFormatter) + ".mp3";
+        String fileName = "Recording " + LocalDateTime.now().format(Constants.defaultDateTimeFormatter) + ".aac";
         ContentValues values = new ContentValues(4);
         values.put(MediaStore.Audio.Media.TITLE, fileName);
         values.put(MediaStore.Audio.Media.DISPLAY_NAME, fileName);
@@ -64,68 +64,75 @@ public class AudioRecordingService {
 
         Uri audioUri = contentResolver.insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, values);
         ParcelFileDescriptor file = contentResolver.openFileDescriptor(audioUri, "w");
-        /*ContextWrapper contextWrapper = new ContextWrapper(activity.getApplicationContext());
-        File musicDirectory= contextWrapper.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-        File file = new File(musicDirectory,fileName);*/
+
         if (file != null) {
             audioRecorder = new MediaRecorder();
             audioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+            audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
             audioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
             audioRecorder.setOutputFile(file.getFileDescriptor());
+            audioRecorder.setAudioEncodingBitRate(16 * 44100);
+            audioRecorder.setAudioSamplingRate(44100);
             audioRecorder.setAudioChannels(1);
             audioRecorder.prepare();
             audioRecorder.start();
             this.audiouri = audioUri;
-            System.out.println(audioUri);
         }
 
     }
 
+    public void pauseRecording() {
+        if (!paused) {
+            if (audioRecorder != null) {
+                audioRecorder.pause();
+                paused = true;
+            }
+        }
+    }
+
+    public void resumeRecording() {
+        if (paused) {
+            if (audioRecorder != null) {
+                audioRecorder.resume();
+                paused = false;
+            }
+        }
+    }
+
     public void stopRecording() throws Exception {
+        recording = false;
         audioRecorder.stop();
         audioRecorder.release();
         audioRecorder = null;
-        System.out.println(audiouri.getPath());
-        file = new File(audiouri.getPath());
 
-        Toast.makeText(context, "new file audio recorded in " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+        String realPath = getRealPathFromURI(context, audiouri);
+        Log.d("AudioRecording", "Real Path: " + realPath);
 
-        Callback onResponseCallback = new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.e(TAG, "Error: " + e);
+        file = new File(realPath);
+        Toast.makeText(context, "New file audio recorded in " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+    }
+
+    public String getRealPathFromURI(Context context, Uri contentUri) {
+        String[] projection = { MediaStore.Audio.Media.DATA };
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(contentUri, projection, null, null, null);
+            int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(columnIndex);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
             }
+        }
+    }
 
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                Log.e(TAG, "Response: " + (response.body() != null ? response.body().string() : null));
-            }
-        };
-
-        //transcribe(onResponseCallback);
+    public float getAmplitude() {
+        return (float) audioRecorder.getMaxAmplitude();
     }
 
     public void transcribe(byte[] fileData, Callback onResponseCallback) throws Exception {
         transcriptionService.transcribeAsync(fileData, onResponseCallback);
     }
 
-    private void getMicrophonePermission() {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.RECORD_AUDIO}
-                    , MICROPHONE_PERMISSION_CODE);
-        }
-
-    }
-
-    private void getStoragePermission() {
-
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, R_PERMISSION_CODE);
-        }
-
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, W_PERMISSION_CODE);
-        }
-    }
 }

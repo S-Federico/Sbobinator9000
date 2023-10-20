@@ -1,90 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
-    tools:context=".MainActivity"
-    android:orientation="vertical"
-    android:weightSum="10">
+    android:visibility="visible"
+    tools:context=".MainActivity">
 
     <TextView
-        android:layout_marginTop="20dp"
+        android:id="@+id/timer"
+        style="@style/TextColor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/not_recording"
+        android:textSize="48sp" />
+
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:id="@+id/bottom_app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/white"
-        android:paddingStart="10sp"
-        android:textSize="30sp"
-        android:text="Recorder" />
+        android:layout_gravity="bottom"
+        app:fabCradleRoundedCornerRadius="10dp" />
 
-    <TextView
+    <com.imotorini.sbobinator9000.WaveformView
+        android:id="@+id/waveformView"
         android:layout_width="match_parent"
+        android:layout_height="600px"
+        app:layout_anchor="@+id/recbutt"
+        android:layout_gravity="top"
+        android:layout_marginBottom="100dp"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#aaaaaa"
-        android:paddingStart="10sp"
-        android:textSize="10sp"
-        android:text="3 registration memorizer" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:textColor="@color/white"
-        android:layout_weight="2.2"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:id="@+id/is_recording_tv"
-        android:textAlignment="textEnd"
-        android:layout_width="match_parent"
-        android:text="NOT RECORDING"
-        android:textColor="@color/white"
-        android:textSize="22sp"
-        android:layout_height="wrap_content" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="7"
-        android:orientation="vertical"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.8"
-        android:weightSum="3"
-        android:orientation="horizontal">
-
-        <TextView
-            android:textAlignment="center"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:textColor="@color/white"
-            android:text="QUI CI VA IL BOTTONE" />
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="2dp">
 
         <ImageButton
-            android:layout_weight="1"
-            android:layout_gravity="center"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:id="@+id/recorder_button"
-            android:backgroundTint="#ff0000"
-            />
+            android:id="@+id/playpause"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:src="@drawable/pause"
+            android:visibility="gone" /> <!-- Inizialmente nascosto -->
 
-        <Button
-            android:id="@+id/btn_transcribe"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Transcribe" />
+        <ImageButton
+            android:id="@+id/transcribe"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_toRightOf="@+id/playpause"
+            android:background="?android:attr/selectableItemBackground"
+            android:src="@drawable/pen_field_24"
+            tools:ignore="SpeakableTextPresentCheck" />
+    </RelativeLayout>
 
-
-    </LinearLayout>
-
-    <ImageButton
-        android:id="@+id/imageButton"
-        android:layout_width="match_parent"
+    <!-- Floating Action Button (FAB) -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/recbutt"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@android:drawable/ic_btn_speak_now" />
+        android:layout_gravity="center|bottom"
+        android:layout_margin="@dimen/fab_margin"
+        android:clickable="true"
+        app:borderWidth="0.5dp"
+        app:elevation="5dp"
+        app:fabCustomSize="70dp"
+        app:layout_anchor="@+id/bottom_app_bar"
+        app:layout_anchorGravity="top|center"
+        app:srcCompat="@drawable/microphone_48"
+        tools:ignore="SpeakableTextPresentCheck" />
 
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
