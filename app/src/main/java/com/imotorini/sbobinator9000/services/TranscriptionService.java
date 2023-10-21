@@ -3,7 +3,6 @@ package com.imotorini.sbobinator9000.services;
 import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.imotorini.sbobinator9000.BuildConfig;
 import com.imotorini.sbobinator9000.models.TranscriptionRequest;
 import com.imotorini.sbobinator9000.utils.Constants;
 import com.imotorini.sbobinator9000.utils.CustomAndroidUtils;
@@ -32,23 +31,9 @@ public class TranscriptionService {
 
     public Response transcribe(byte[] file, String format) {
 
-        TranscriptionRequest transcriptionRequest = new TranscriptionRequest();
-        transcriptionRequest.setAudioBytes(file);
-        transcriptionRequest.setFormat(format);
+        Request request = buildRequest(file, format);
 
-        String jsonStr = null;
-        try {
-            jsonStr = CustomAndroidUtils.objectToJsonString(transcriptionRequest);
-        } catch (JsonProcessingException e) {
-            Log.e(TAG, "Failed to parse object. Reason: " + e);
-            return null;
-        }
-
-        Request request;
-        request = new Request.Builder()
-                .url(baseUrl + Constants.STT_PATH)
-                .post(RequestBody.create(jsonStr.getBytes(), MEDIA_TYPE_PLAINTEXT))
-                .build();
+        Log.d(TAG, "Making request with body: " + CustomAndroidUtils.getRequestBodyAsString(request));
 
         // client.newCall(request).enqueue(onResponseCallback);
         Response response=null;
@@ -65,12 +50,35 @@ public class TranscriptionService {
     }
 
     public void transcribeAsync(byte[] file, Callback onResponseCallback) {
+        transcribeAsync(file, null, onResponseCallback);
+    }
 
-        Request request = new Request.Builder()
-                .url(BuildConfig.STT_BASE_URL + Constants.STT_PATH)
-                .post(RequestBody.create(file, MEDIA_TYPE_PLAINTEXT))
+    public void transcribeAsync(byte[] file, String audioFormat, Callback onResponseCallback) {
+
+        Request request = buildRequest(file, audioFormat);
+        Log.d(TAG, "Making request with body: " + CustomAndroidUtils.getRequestBodyAsString(request));
+
+        client.newCall(request).enqueue(onResponseCallback);
+    }
+
+    private Request buildRequest(byte[] file, String audioFormat) {
+        TranscriptionRequest transcriptionRequest = new TranscriptionRequest();
+        transcriptionRequest.setAudioBytes(file);
+        transcriptionRequest.setFormat(audioFormat);
+
+        String jsonStr = null;
+        try {
+            jsonStr = CustomAndroidUtils.objectToJsonString(transcriptionRequest);
+        } catch (JsonProcessingException e) {
+            Log.e(TAG, "Failed to parse object. Reason: " + e);
+            return null;
+        }
+
+        Request request;
+        request = new Request.Builder()
+                .url(baseUrl + Constants.STT_PATH)
+                .post(RequestBody.create(jsonStr.getBytes(), MEDIA_TYPE_PLAINTEXT))
                 .build();
-
-         client.newCall(request).enqueue(onResponseCallback);
+        return request;
     }
 }
