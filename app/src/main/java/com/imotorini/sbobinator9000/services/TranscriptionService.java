@@ -33,7 +33,7 @@ public class TranscriptionService {
 
         Request request = buildRequest(file, format);
 
-        Log.d(TAG, "Making request with body: " + CustomAndroidUtils.getRequestBodyAsString(request));
+        //Log.d(TAG, "Making request with body: " + CustomAndroidUtils.getRequestBodyAsString(request));
 
         // client.newCall(request).enqueue(onResponseCallback);
         Response response=null;

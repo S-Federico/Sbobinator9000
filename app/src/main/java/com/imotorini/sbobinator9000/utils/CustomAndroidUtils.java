@@ -36,6 +36,7 @@ public class CustomAndroidUtils {
     }
 
     public static String objectToJsonString(Object obj) throws JsonProcessingException {
+        if (obj == null) return null;
         return om.writeValueAsString(obj);
     }
 
