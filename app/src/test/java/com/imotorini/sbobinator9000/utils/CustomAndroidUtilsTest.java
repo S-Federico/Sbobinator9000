@@ -8,6 +8,9 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.imotorini.sbobinator9000.models.TranscriptionRequest;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -78,6 +81,27 @@ public class CustomAndroidUtilsTest {
     }
 
 
+    // Test method objectToJsonString
+    @Test
+    public void testObjectToJsonStringNull() throws JsonProcessingException {
+        String res = CustomAndroidUtils.objectToJsonString(null);
+        Assert.assertNull(res);
+    }
 
+    @Test
+    public void testObjectToJsonStringEmptyTranscriptionRequest() throws IOException {
+        String res = CustomAndroidUtils.objectToJsonString(new TranscriptionRequest());
+        String expected = "{\"audio_bytes\":null,\"audio_format\":null}";
+        Assert.assertEquals(expected, res);
+    }
 
+    @Test
+    public void testObjectToJsonStringTranscriptionRequestWithValues() throws IOException {
+        TranscriptionRequest tr = new TranscriptionRequest();
+        tr.setFormat("wav");
+        tr.setAudioBytes("CIAO".getBytes());
+        String res = CustomAndroidUtils.objectToJsonString(tr);
+        String expected = "{\"audio_bytes\":\"Q0lBTw==\",\"audio_format\":\"wav\"}";
+        Assert.assertEquals(expected, res);
+    }
 }

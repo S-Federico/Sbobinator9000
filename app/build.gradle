@@ -40,6 +40,11 @@ dependencies {
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'com.google.android.material:material:1.4.0'  // La versione potrebbe variare
 
+    // Jackson to parse JSON
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.4.1'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.4.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.4.1'
+
     // Test dependeencies
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

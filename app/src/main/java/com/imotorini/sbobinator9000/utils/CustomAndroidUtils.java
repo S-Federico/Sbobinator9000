@@ -4,11 +4,16 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 public class CustomAndroidUtils {
+
+    private static ObjectMapper om = new ObjectMapper();
 
     public static byte[] fileToBytes(Uri fileUri, Context context) throws IOException {
         if (fileUri == null || context == null) return null;
@@ -23,5 +28,9 @@ public class CustomAndroidUtils {
         }
         inputStream.close();
         return byteBuffer.toByteArray();
+    }
+
+    public static String objectToJsonString(Object obj) throws JsonProcessingException {
+        return om.writeValueAsString(obj);
     }
 }
