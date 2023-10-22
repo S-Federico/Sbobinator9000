@@ -2,7 +2,6 @@ package com.imotorini.sbobinator9000.services;
 
 import android.util.Log;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.imotorini.sbobinator9000.models.TranscriptionRequest;
 import com.imotorini.sbobinator9000.utils.Constants;
 import com.imotorini.sbobinator9000.utils.CustomAndroidUtils;
@@ -11,18 +10,17 @@ import java.io.IOException;
 
 import okhttp3.Callback;
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class TranscriptionService {
-
     private static final String TAG = TranscriptionService.class.getSimpleName();
-
     private final OkHttpClient client;
     private final String baseUrl;
-    private static final MediaType MEDIA_TYPE_PLAINTEXT = MediaType.parse("audio/mpeg3");
+    private static final MediaType MEDIA_TYPE_AUDIO = MediaType.parse("audio/mpeg3");
 
     public TranscriptionService(String baseUrl) {
         this.baseUrl = baseUrl;
@@ -30,13 +28,9 @@ public class TranscriptionService {
     }
 
     public Response transcribe(byte[] file, String format) {
-
         Request request = buildRequest(file, format);
-
-        //Log.d(TAG, "Making request with body: " + CustomAndroidUtils.getRequestBodyAsString(request));
-
-        // client.newCall(request).enqueue(onResponseCallback);
-        Response response=null;
+        Log.d(TAG, "Making request with endpoint: " + request.url());
+        Response response = null;
         try {
             response = client.newCall(request).execute();
         } catch (IOException e) {
@@ -54,31 +48,31 @@ public class TranscriptionService {
     }
 
     public void transcribeAsync(byte[] file, String audioFormat, Callback onResponseCallback) {
-
         Request request = buildRequest(file, audioFormat);
-        Log.d(TAG, "Making request with body: " + CustomAndroidUtils.getRequestBodyAsString(request));
-
+        Log.d(TAG, "Making request with endpoint: " + request.url());
         client.newCall(request).enqueue(onResponseCallback);
     }
 
     private Request buildRequest(byte[] file, String audioFormat) {
-        TranscriptionRequest transcriptionRequest = new TranscriptionRequest();
-        transcriptionRequest.setAudioBytes(file);
-        transcriptionRequest.setFormat(audioFormat);
+        MultipartBody.Builder builder = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("audio", "filename.mp3",
+                        RequestBody.create(file, MEDIA_TYPE_AUDIO));
 
-        String jsonStr = null;
-        try {
-            jsonStr = CustomAndroidUtils.objectToJsonString(transcriptionRequest);
-        } catch (JsonProcessingException e) {
-            Log.e(TAG, "Failed to parse object. Reason: " + e);
-            return null;
+        // Aggiungere l'estensione del file se fornita
+        if (audioFormat != null) {
+            builder.addFormDataPart("format", audioFormat);
         }
 
-        Request request;
-        request = new Request.Builder()
+        RequestBody requestBody = builder.build();
+
+        Request request = new Request.Builder()
                 .url(baseUrl + Constants.STT_PATH)
-                .post(RequestBody.create(jsonStr.getBytes(), MEDIA_TYPE_PLAINTEXT))
+                .post(requestBody)
                 .build();
+
         return request;
     }
+
 }
+
