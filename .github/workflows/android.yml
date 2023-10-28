@@ -30,6 +30,13 @@ jobs:
         with:
           name: lint.html
           path: app/build/reports/lint-results-debug.html
+      - name: Run gradle check
+        run: ./gradlew check
+      - name: Upload checkstyle report
+        uses: actions/upload-artifact@v2
+        with:
+          name: checkstyle-report.html
+          path: app/build/reports/checkstyle/checkstyle.html
 #      - name: Instrumentation Tests
 #        uses: reactivecircus/android-emulator-runner@v2
 #        with:

@@ -3,10 +3,8 @@ package com.imotorini.sbobinator9000;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,15 +23,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.imotorini.sbobinator9000.models.TranscriptionResponse;
 import com.imotorini.sbobinator9000.services.AudioRecordingService;
 import com.imotorini.sbobinator9000.services.TranscriptionService;
 import com.imotorini.sbobinator9000.utils.CustomAndroidUtils;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -252,50 +246,46 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                                     Log.d(TAG, "SUCCESS");
+                                    TranscriptionResponse transcriptionResponse = CustomAndroidUtils.parseResponse(response);
 
-                                    if (!response.isSuccessful() || response.body() == null) {
-                                        Log.e(TAG, "Failed to get the transcription");
+
+                                    if (!response.isSuccessful()) {
+                                        String errorMessage = transcriptionResponse != null ? transcriptionResponse.getErrorMessage() : null;
+                                        Log.e(TAG, "Failed to get the transcription. Reason: " + errorMessage);
                                         return;
                                     }
 
-                                    try {
-                                        JSONObject jsonObject = new JSONObject(response.body().string());
-                                        String transcription = jsonObject.getString("data");
-                                        runOnUiThread(() -> Toast.makeText(MainActivity.this, transcription, Toast.LENGTH_SHORT).show());
-                                        ContentValues values = new ContentValues();
-                                        values.put(MediaStore.MediaColumns.DISPLAY_NAME, transcribedfilename+".txt");
-                                        values.put(MediaStore.MediaColumns.MIME_TYPE, "text/plain");
-                                        values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS);
+                                    //JSONObject jsonObject = new JSONObject(response.body().string());
+                                    //String transcription = jsonObject.getString("data");
+                                    String transcription = transcriptionResponse.getData();
+                                    runOnUiThread(() -> Toast.makeText(MainActivity.this, transcription, Toast.LENGTH_SHORT).show());
+                                    ContentValues values = new ContentValues();
+                                    values.put(MediaStore.MediaColumns.DISPLAY_NAME, transcribedfilename+".txt");
+                                    values.put(MediaStore.MediaColumns.MIME_TYPE, "text/plain");
+                                    values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS);
 
-                                        Uri uri = getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
+                                    Uri uri = getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
 
-                                        if (uri != null) {
-                                            try (OutputStream os = getContentResolver().openOutputStream(uri)) {
-                                                if (os != null) {
-                                                    os.write(transcription.getBytes());
-                                                    Log.d(TAG, "Transcription saved successfully");
-                                                }
-                                            } catch (IOException e) {
-                                                Log.e(TAG, "Error writing to file", e);
+                                    if (uri != null) {
+                                        try (OutputStream os = getContentResolver().openOutputStream(uri)) {
+                                            if (os != null) {
+                                                os.write(transcription.getBytes());
+                                                Log.d(TAG, "Transcription saved successfully");
                                             }
-                                        } else {
-                                            Log.e(TAG, "Failed to create new MediaStore record");
+                                        } catch (IOException e) {
+                                            Log.e(TAG, "Error writing to file", e);
                                         }
-                                    } catch (JSONException e) {
-                                        Log.e(TAG, "JSON Parsing Error", e);
-                                        runOnUiThread(() -> Toast.makeText(MainActivity.this, "Error occurred while parsing data", Toast.LENGTH_SHORT).show());
+                                    } else {
+                                        Log.e(TAG, "Failed to create new MediaStore record");
                                     }
-
-
                                 }
-
-
                             });
                         } catch (RuntimeException | IOException e) {
                             Log.e(TAG, "Error while creating file from picker uri. Details: " + e.getMessage());
                         }
                     }
                 }
+                break;
             default:
                 Log.i(TAG, "Received " + requestCode + " as ActivityResult.");
         }

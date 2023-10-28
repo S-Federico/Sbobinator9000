@@ -12,6 +12,34 @@ buildscript {
     }
 }
 
+allprojects {
+
+    // Create Checkstyle task at root level
+    task checkstyle(type: Checkstyle) {
+        showViolations = true
+        configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
+        ignoreFailures = true
+
+        source 'src/main/java'
+        include '**/*.java'
+        exclude '**/gen/**'
+        exclude '**/R.java'
+        exclude '**/BuildConfig.java'
+
+        // empty classpath
+        classpath = files()
+    }
+
+    // Specify that has to create HTML report in ${buildDir}/reports/checkstyle/checkstyle.html
+    tasks.withType(Checkstyle) {
+        reports {
+            xml.required = false
+            html.required = true
+            //html.stylesheet resources.text.fromFile('config/xsl/checkstyle-custom.xsl')
+        }
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
