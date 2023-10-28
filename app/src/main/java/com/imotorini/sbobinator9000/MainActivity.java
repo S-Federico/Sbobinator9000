@@ -228,6 +228,7 @@ public class MainActivity extends AppCompatActivity {
                     if (data != null) {
                         Uri fileUri = data.getData();
                         String transcribedfilename=fileUri.getLastPathSegment();
+                        Toast.makeText(this, "RESULT OK : "+transcribedfilename, Toast.LENGTH_SHORT).show();
                         try {
                             //byte[] fileData = Utils.fileToBytes(file);
                             byte[] fileData = CustomAndroidUtils.fileToBytes(fileUri, getApplicationContext());
@@ -306,9 +307,21 @@ public class MainActivity extends AppCompatActivity {
             permissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
 
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(), Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_DENIED) {
+            permissionsNeeded.add(Manifest.permission.ACCESS_WIFI_STATE);
+        }
+
+        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CHANGE_WIFI_MULTICAST_STATE) == PackageManager.PERMISSION_DENIED) {
+            permissionsNeeded.add(Manifest.permission.CHANGE_WIFI_MULTICAST_STATE);
+        }
+
         if (!permissionsNeeded.isEmpty()) {
             ActivityCompat.requestPermissions(this, permissionsNeeded.toArray(new String[0]), ALL_PERMISSIONS_CODE);
         }
+        if (!permissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(this, permissionsNeeded.toArray(new String[0]), ALL_PERMISSIONS_CODE);
+        }
+
     }
 
 }
