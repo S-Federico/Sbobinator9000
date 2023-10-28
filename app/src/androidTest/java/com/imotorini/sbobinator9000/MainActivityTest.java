@@ -4,6 +4,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withSubstring;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import android.content.Context;
@@ -35,23 +36,26 @@ public class MainActivityTest {
     @Test
     public void testOnCreate() {
         String expected = context.getString(R.string.not_recording);
-        onView(withId(R.id.is_recording_tv)).check(matches(withText(expected)));
+        onView(withId(R.id.timer)).check(matches(withText(expected)));
     }
 
     @Test
     public void testIsRecording() {
-        String expected = context.getString(R.string.recording);
-        onView(withId(R.id.recorder_button)).perform(click());
-        onView(withId(R.id.is_recording_tv)).check(matches(withText(expected)));
+        // Expect to find only "Recording", not "Recording: %1$d:%2$02d"
+        // Do not want to declare a new string because it would be for testing only and it would
+        // be a smell.
+        String expected = context.getString(R.string.recording_time).split(":")[0];
+        onView(withId(R.id.recbutt)).perform(click());
+        onView(withId(R.id.timer)).check(matches(withSubstring(expected)));
     }
 
     @Test
     public void testStartStopRecording() {
-        String expected = context.getString(R.string.recording);
-        onView(withId(R.id.recorder_button)).perform(click());
-        onView(withId(R.id.is_recording_tv)).check(matches(withText(expected)));
-        onView(withId(R.id.recorder_button)).perform(click());
+        String expected = context.getString(R.string.recording_time).split(":")[0];
+        onView(withId(R.id.recbutt)).perform(click());
+        onView(withId(R.id.timer)).check(matches(withSubstring(expected)));
+        onView(withId(R.id.recbutt)).perform(click());
         expected = context.getString(R.string.not_recording);
-        onView(withId(R.id.is_recording_tv)).check(matches(withText(expected)));
+        onView(withId(R.id.timer)).check(matches(withText(expected)));
     }
 }
