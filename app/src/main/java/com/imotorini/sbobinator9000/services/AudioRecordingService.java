@@ -104,11 +104,15 @@ public class AudioRecordingService {
         audioRecorder.stop();
         audioRecorder.release();
         audioRecorder = null;
-
+        paused=false;
         String realPath = getRealPathFromURI(context, audiouri);
         Log.d("AudioRecording", "Real Path: " + realPath);
 
         file = new File(realPath);
+
+    }
+
+    public void showToast() {
         Toast.makeText(context, "New file audio recorded in " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
     }
 
@@ -133,6 +137,18 @@ public class AudioRecordingService {
 
     public void transcribe(byte[] fileData, Callback onResponseCallback) throws Exception {
         transcriptionService.transcribeAsync(fileData, onResponseCallback);
+    }
+
+    public boolean isRecording() {
+        return recording;
+    }
+
+    public boolean isPaused(){
+    return paused;
+    }
+
+    public MediaRecorder getMediaRecorder() {
+        return audioRecorder;
     }
 
 }

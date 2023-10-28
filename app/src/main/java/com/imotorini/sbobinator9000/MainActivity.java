@@ -153,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     try {
                         audioRecordingService.stopRecording();
+                        audioRecordingService.showToast();
                         startTime = 0; // Resetta il tempo di inizio quando la registrazione si interrompe
                         pauseStartTime = 0; // Resetta il tempo di inizio della pausa
                         elapsedTimeBeforePause = 0; // Resetta il tempo trascorso prima della pausa
