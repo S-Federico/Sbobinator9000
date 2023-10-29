@@ -7,10 +7,8 @@ import com.imotorini.sbobinator9000.utils.Constants;
 import com.imotorini.sbobinator9000.utils.CustomAndroidUtils;
 
 import java.io.IOException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -25,68 +23,43 @@ import javax.jmdns.ServiceListener;
 public class TranscriptionService {
     private static final String TAG = TranscriptionService.class.getSimpleName();
     private final OkHttpClient client;
-    private String baseUrl;
+    private final String baseUrl;
     private static final MediaType MEDIA_TYPE_AUDIO = MediaType.parse("audio/mpeg3");
-    private final Executor executor = Executors.newSingleThreadExecutor();
 
     public TranscriptionService(String baseUrl) {
-        this.client = new OkHttpClient();
-        discoverService();
+        this.baseUrl = baseUrl;
+        this.client = new OkHttpClient.Builder()
+                .connectTimeout(120, TimeUnit.MINUTES)
+                .readTimeout(120, TimeUnit.MINUTES)
+                .writeTimeout(120, TimeUnit.MINUTES)
+                .build();
     }
-    private void discoverService() {
-        executor.execute(() -> {
-            try {
-                JmDNS jmdns = JmDNS.create();
-                jmdns.addServiceListener("_http._tcp.local.", new ServiceListener() {
-                    @Override
-                    public void serviceAdded(ServiceEvent event) {
-                        jmdns.requestServiceInfo(event.getType(), event.getName(), 1);
-                    }
 
-                    @Override
-                    public void serviceRemoved(ServiceEvent event) {}
-
-                    @Override
-                    public void serviceResolved(ServiceEvent event) {
-                        String ip = event.getInfo().getInetAddresses()[0].getHostAddress();
-                        int port = event.getInfo().getPort();
-                        baseUrl = "http://" + ip + ":" + port;
-                        Log.d(TAG, "Service resolved with address: " + baseUrl);
-                    }
-                });
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+    public Response transcribe(byte[] file, String format) {
+        Request request = buildRequest(file, format);
+        Log.d(TAG, "Making request with endpoint: " + request.url());
+        Response response = null;
+        try {
+            response = client.newCall(request).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return response;
     }
+
+    public Response transcribe(byte[] file) {
+        return transcribe(file, null);
+    }
+
     public void transcribeAsync(byte[] file, Callback onResponseCallback) {
         transcribeAsync(file, null, onResponseCallback);
     }
 
     public void transcribeAsync(byte[] file, String audioFormat, Callback onResponseCallback) {
-        if (baseUrl == null) {
-            Log.e(TAG, "Service has not been discovered yet.");
-            onResponseCallback.onFailure(null, new IOException("Service not discovered."));
-            return;
-        }
-
         Request request = buildRequest(file, audioFormat);
         Log.d(TAG, "Making request with endpoint: " + request.url());
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-                onResponseCallback.onFailure(call, e);
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                onResponseCallback.onResponse(call, response);
-            }
-        });
+        client.newCall(request).enqueue(onResponseCallback);
     }
-
 
     private Request buildRequest(byte[] file, String audioFormat) {
         MultipartBody.Builder builder = new MultipartBody.Builder()
