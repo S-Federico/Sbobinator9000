@@ -7,6 +7,8 @@ import okhttp3.Request
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
+import android.content.Context
+import android.net.wifi.WifiManager
 
 class DiscoveryService : Service() {
 
@@ -23,17 +25,39 @@ class DiscoveryService : Service() {
         return START_NOT_STICKY
     }
 
+    private fun getCurrentSubnetBase(): String? {
+        val wifiManager = getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val ipAddress = wifiManager.connectionInfo.ipAddress
+
+        // Converti l'indirizzo IP in una stringa nel formato a.b.c
+        val ip = String.format(
+                "%d.%d.%d",
+                (ipAddress and 0xff),
+                (ipAddress shr 8 and 0xff),
+                (ipAddress shr 16 and 0xff)
+        )
+
+        return ip
+    }
+
     private fun scanSubnet() {
+        val subnetBase = getCurrentSubnetBase()
+        if (subnetBase == null) {
+            // Gestisci l'errore, ad esempio inviando un broadcast "ERROR"
+            sendBroadcast(Intent("ERROR"))
+            return
+        }
+
         val latch = CountDownLatch(254)
         val serverFound = AtomicBoolean(false)
 
         for (i in 1..254) {
-            val ip = "192.168.1.$i"
+            val ip = "$subnetBase.$i"
             executor.execute {
                 try {
                     val request = Request.Builder()
-                        .url("http://$ip:9999/henlo")
-                        .build()
+                            .url("http://$ip:9999/henlo")
+                            .build()
 
                     val response = client.newCall(request).execute()
                     if (response.isSuccessful && response.body?.string() == "henlo" && serverFound.compareAndSet(false, true)) {
@@ -58,3 +82,4 @@ class DiscoveryService : Service() {
         }.start()
     }
 }
+
