@@ -7,6 +7,7 @@ import com.imotorini.sbobinator9000.utils.Constants;
 import com.imotorini.sbobinator9000.utils.CustomAndroidUtils;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -15,6 +16,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import javax.jmdns.JmDNS;
+import javax.jmdns.ServiceEvent;
+import javax.jmdns.ServiceListener;
 
 public class TranscriptionService {
     private static final String TAG = TranscriptionService.class.getSimpleName();
@@ -24,7 +28,11 @@ public class TranscriptionService {
 
     public TranscriptionService(String baseUrl) {
         this.baseUrl = baseUrl;
-        this.client = new OkHttpClient();
+        this.client = new OkHttpClient.Builder()
+                .connectTimeout(120, TimeUnit.MINUTES)
+                .readTimeout(120, TimeUnit.MINUTES)
+                .writeTimeout(120, TimeUnit.MINUTES)
+                .build();
     }
 
     public Response transcribe(byte[] file, String format) {

@@ -1,11 +1,15 @@
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
     compileSdk 31
 
     defaultConfig {
+        configurations.all {
+            resolutionStrategy { force 'androidx.core:core-ktx:1.6.0' }
+        }
         applicationId "com.imotorini.sbobinator9000"
         minSdk 29
         targetSdk 31
@@ -43,11 +47,13 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'com.google.android.material:material:1.4.0'  // La versione potrebbe variare
+    implementation 'org.jmdns:jmdns:3.5.5'
 
     // Jackson to parse JSON
     implementation 'com.fasterxml.jackson.core:jackson-core:2.4.1'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.4.1'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.4.1'
+    implementation 'androidx.core:core-ktx:+'
 
     // Test dependeencies
     testImplementation 'junit:junit:4.+'

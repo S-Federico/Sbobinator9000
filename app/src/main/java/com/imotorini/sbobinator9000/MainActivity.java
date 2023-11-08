@@ -2,8 +2,11 @@ package com.imotorini.sbobinator9000;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,6 +28,7 @@ import androidx.core.content.ContextCompat;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.imotorini.sbobinator9000.models.TranscriptionResponse;
 import com.imotorini.sbobinator9000.services.AudioRecordingService;
+import com.imotorini.sbobinator9000.services.DiscoveryService;
 import com.imotorini.sbobinator9000.services.TranscriptionService;
 import com.imotorini.sbobinator9000.utils.CustomAndroidUtils;
 
@@ -65,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getName();
     private WaveformView waveform;
 
+    private String serverIp;
+    private BroadcastReceiver receiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         transcribeButton = findViewById(R.id.transcribe);
         waveform = findViewById(R.id.waveformView);
 
-        transcriptionService = new TranscriptionService(BuildConfig.STT_BASE_URL);
+        transcribeButton.setEnabled(false);
 
         audioRecordingService = new AudioRecordingService(
                 getContentResolver(),
@@ -88,6 +94,26 @@ public class MainActivity extends AppCompatActivity {
                 transcriptionService
         );
 
+
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if ("SERVER_FOUND".equals(intent.getAction())) {
+                    serverIp = "http://"+intent.getStringExtra("serverIp")+":9999";
+                    transcribeButton.setEnabled(true);
+                    transcriptionService = new TranscriptionService(serverIp);
+                } else if ("SERVER_NOT_FOUND".equals(intent.getAction())) {
+                    showToast("Nessun server trovato");
+                }
+            }
+        };
+        Intent intent = new Intent(this, DiscoveryService.class);
+        startService(intent);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("SERVER_FOUND");
+        filter.addAction("SERVER_NOT_FOUND");
+        registerReceiver(receiver, filter);
         updateTimeRunnable = new Runnable() {
             @Override
             public void run() {
@@ -147,7 +173,6 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     try {
                         audioRecordingService.stopRecording();
-                        audioRecordingService.showToast();
                         startTime = 0; // Resetta il tempo di inizio quando la registrazione si interrompe
                         pauseStartTime = 0; // Resetta il tempo di inizio della pausa
                         elapsedTimeBeforePause = 0; // Resetta il tempo trascorso prima della pausa
@@ -229,7 +254,6 @@ public class MainActivity extends AppCompatActivity {
                         Uri fileUri = data.getData();
                         String transcribedfilename=fileUri.getLastPathSegment();
                         try {
-                            //byte[] fileData = Utils.fileToBytes(file);
                             byte[] fileData = CustomAndroidUtils.fileToBytes(fileUri, getApplicationContext());
 
                             transcriptionService.transcribeAsync(fileData, new Callback() {
@@ -255,8 +279,6 @@ public class MainActivity extends AppCompatActivity {
                                         return;
                                     }
 
-                                    //JSONObject jsonObject = new JSONObject(response.body().string());
-                                    //String transcription = jsonObject.getString("data");
                                     String transcription = transcriptionResponse.getData();
                                     runOnUiThread(() -> Toast.makeText(MainActivity.this, transcription, Toast.LENGTH_SHORT).show());
                                     ContentValues values = new ContentValues();
@@ -309,6 +331,23 @@ public class MainActivity extends AppCompatActivity {
         if (!permissionsNeeded.isEmpty()) {
             ActivityCompat.requestPermissions(this, permissionsNeeded.toArray(new String[0]), ALL_PERMISSIONS_CODE);
         }
+    }
+    private void showToast(String message) {
+        Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("SERVER_FOUND");
+        filter.addAction("SERVER_NOT_FOUND");
+        registerReceiver(receiver, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(receiver);
     }
 
 }
