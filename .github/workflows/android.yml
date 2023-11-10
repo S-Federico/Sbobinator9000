@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '11'
-          distribution: 'temurin'
+          distribution: 'adopt'
           cache: gradle
       - name: Make gradlew executable
         run: chmod +x ./gradlew
@@ -37,7 +37,35 @@ jobs:
         with:
           name: checkstyle-report.html
           path: app/build/reports/checkstyle/checkstyle.html
-      - name: Instrumentation Tests
+#      - name: Instrumentation Tests
+#        uses: reactivecircus/android-emulator-runner@v2
+#        with:
+#          api-level: 31
+#          #target: default
+#          #arch: x86
+#          #profile: Nexus 6
+#          script: ./gradlew connectedCheck --stacktrace
+#      - name: Upload test report
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: instrumentation_test_report
+#          path: app/build/reports/androidTests/connected/
+  androidTest:
+    needs: test
+    name: Run Unit Tests
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Setup JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          cache: gradle
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+      - name: Android test
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 31
@@ -50,11 +78,10 @@ jobs:
         with:
           name: instrumentation_test_report
           path: app/build/reports/androidTests/connected/
-
   build:
     #if: ${{ needs.tag.outputs.is_tagged }}
     if: ${{ github.ref_name == 'main' }}
-    needs: test
+    needs: androidTest
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
