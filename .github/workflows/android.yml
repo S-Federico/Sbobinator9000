@@ -52,7 +52,7 @@ jobs:
 #          path: app/build/reports/androidTests/connected/
   androidTest:
     needs: test
-    name: Run Unit Tests
+    name: Run Android tests
     runs-on: macos-latest
     steps:
       - name: Checkout
@@ -68,7 +68,7 @@ jobs:
       - name: Android test
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 31
+          api-level: 29
           #target: default
           #arch: x86
           #profile: Nexus 6
