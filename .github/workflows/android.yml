@@ -37,19 +37,19 @@ jobs:
         with:
           name: checkstyle-report.html
           path: app/build/reports/checkstyle/checkstyle.html
-#      - name: Instrumentation Tests
-#        uses: reactivecircus/android-emulator-runner@v2
-#        with:
-#          api-level: 29
-#          target: default
-#          arch: x86
-#          profile: Nexus 6
-#          script: ./gradlew connectedCheck --stacktrace
-#      - name: Upload test report
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: instrumentation_test_report
-#          path: app/build/reports/androidTests/connected/
+      - name: Instrumentation Tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 31
+          #target: default
+          #arch: x86
+          #profile: Nexus 6
+          script: ./gradlew connectedCheck --stacktrace
+      - name: Upload test report
+        uses: actions/upload-artifact@v2
+        with:
+          name: instrumentation_test_report
+          path: app/build/reports/androidTests/connected/
 
   build:
     #if: ${{ needs.tag.outputs.is_tagged }}
