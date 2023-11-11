@@ -9,12 +9,15 @@ import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 import android.content.Context
 import android.net.wifi.WifiManager
+import android.util.Log
+import java.util.concurrent.RejectedExecutionException
 
 class DiscoveryService : Service() {
 
     private val client = OkHttpClient()
     private val numberOfThreads = 50
     private val executor = Executors.newFixedThreadPool(numberOfThreads)
+    private val TAG = DiscoveryService::class.qualifiedName;
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -53,23 +56,27 @@ class DiscoveryService : Service() {
 
         for (i in 1..254) {
             val ip = "$subnetBase.$i"
-            executor.execute {
-                try {
-                    val request = Request.Builder()
+            try {
+                executor.execute {
+                    try {
+                        val request = Request.Builder()
                             .url("http://$ip:9999/henlo")
                             .build()
 
-                    val response = client.newCall(request).execute()
-                    if (response.isSuccessful && response.body?.string() == "henlo" && serverFound.compareAndSet(false, true)) {
-                        val intent = Intent("SERVER_FOUND")
-                        intent.putExtra("serverIp", ip)
-                        sendBroadcast(intent)
+                        val response = client.newCall(request).execute()
+                        if (response.isSuccessful && response.body?.string() == "henlo" && serverFound.compareAndSet(false, true)) {
+                            val intent = Intent("SERVER_FOUND")
+                            intent.putExtra("serverIp", ip)
+                            sendBroadcast(intent)
+                        }
+                    } catch (e: Exception) {
+                        // Ignora gli errori
+                    } finally {
+                        latch.countDown()
                     }
-                } catch (e: Exception) {
-                    // Ignora gli errori
-                } finally {
-                    latch.countDown()
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to advertise. Reason: $e")
             }
         }
 
