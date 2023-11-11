@@ -29,6 +29,7 @@ public class MainActivityTest {
 
     @Before
     public void setup() {
+        activityRule.getScenario().moveToState(Lifecycle.State.CREATED);
         activityRule.getScenario().moveToState(Lifecycle.State.RESUMED);
         context = InstrumentationRegistry.getInstrumentation().getTargetContext();
     }

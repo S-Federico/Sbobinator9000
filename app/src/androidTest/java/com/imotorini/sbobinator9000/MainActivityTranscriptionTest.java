@@ -34,7 +34,9 @@ public class MainActivityTranscriptionTest {
             GrantPermissionRule.grant(
                     "android.permission.RECORD_AUDIO",
                     "android.permission.READ_EXTERNAL_STORAGE",
-                    "android.permission.WRITE_EXTERNAL_STORAGE");
+                    //"android.permission.WRITE_EXTERNAL_STORAGE", --> This permission crashes the test
+                    "android.permission.CHANGE_WIFI_MULTICAST_STATE",
+                    "android.permission.ACCESS_WIFI_STATE");
 
     @Test
     public void mainActivityTranscriptionTest() {
