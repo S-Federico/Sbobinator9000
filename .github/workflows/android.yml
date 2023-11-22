@@ -65,19 +65,25 @@ jobs:
           cache: gradle
       - name: Make gradlew executable
         run: chmod +x ./gradlew
-      - name: Android test
+      - name: Android test + Jacoco
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
           #target: default
           #arch: x86
           #profile: Nexus 6
-          script: ./gradlew connectedCheck --stacktrace
+          script: ./gradlew jacocoTestReport
       - name: Upload test report
         uses: actions/upload-artifact@v2
         with:
           name: instrumentation_test_report
           path: app/build/reports/androidTests/connected/
+      - name: Upload Jacoco report
+        uses: actions/upload-artifact@v2
+        with:
+          name: jacoco_report
+          path: app/build/reports/jacoco/jacocoTestReport/html
+
   build:
     #if: ${{ needs.tag.outputs.is_tagged }}
     if: ${{ github.ref_name == 'main' }}
