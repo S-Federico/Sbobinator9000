@@ -9,6 +9,7 @@ import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import android.app.Instrumentation;
 import android.content.Intent;
 
+import androidx.lifecycle.Lifecycle;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.intent.matcher.IntentMatchers;
 import androidx.test.espresso.matcher.ViewMatchers;
@@ -29,7 +30,7 @@ public class MainActivityFilePickerTest {
 
     @Before
     public void setUp() {
-
+        activityRule.getScenario().moveToState(Lifecycle.State.RESUMED);
     }
 
     @After
