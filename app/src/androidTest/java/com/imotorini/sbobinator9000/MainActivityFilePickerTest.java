@@ -45,17 +45,17 @@ public class MainActivityFilePickerTest {
         // Rendi il pulsante visibile e abilitato
         activityRule.getScenario().onActivity(activity -> {
             activity.enableTranscribeButton();
+            activity.onResume();
         });
-        onView(ViewMatchers.withId(R.id.transcribe)).perform(click());
 
         // Configura un intent fittizio per la tua attività di scelta file
         intending(hasAction(Intent.ACTION_GET_CONTENT))
                 .respondWith(new Instrumentation.ActivityResult(MainActivity.RESULT_OK, null));
 
+        onView(ViewMatchers.withId(R.id.transcribe)).perform(click());
 
         // Simula la scelta di un file
         // Verifica che sia stato creato e avviato un intent con le corrette azioni e categorie
-
         Intents.intended(IntentMatchers.anyIntent());
         // Termina la registrazione degli intenti
         Intents.release();
