@@ -1,25 +1,18 @@
 package com.imotorini.sbobinator9000;
 
 
-import androidx.test.espresso.intent.Intents;
+import android.content.Intent;
+import android.net.Uri;
 
-import androidx.test.espresso.matcher.ViewMatchers;
+import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-
-import androidx.test.espresso.intent.matcher.IntentMatchers;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
-
-import android.content.Intent;
-import android.net.Uri;
 
 
 @RunWith(AndroidJUnit4.class)

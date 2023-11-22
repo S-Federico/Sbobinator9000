@@ -1,16 +1,15 @@
 package com.imotorini.sbobinator9000.services
 import android.app.Service
+import android.content.Context
 import android.content.Intent
+import android.net.wifi.WifiManager
 import android.os.IBinder
+import android.util.Log
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
-import android.content.Context
-import android.net.wifi.WifiManager
-import android.util.Log
-import java.util.concurrent.RejectedExecutionException
 
 class DiscoveryService : Service() {
 

@@ -2,9 +2,7 @@ package com.imotorini.sbobinator9000.services;
 
 import android.util.Log;
 
-import com.imotorini.sbobinator9000.models.TranscriptionRequest;
 import com.imotorini.sbobinator9000.utils.Constants;
-import com.imotorini.sbobinator9000.utils.CustomAndroidUtils;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -16,9 +14,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import javax.jmdns.JmDNS;
-import javax.jmdns.ServiceEvent;
-import javax.jmdns.ServiceListener;
 
 public class TranscriptionService {
     private static final String TAG = TranscriptionService.class.getSimpleName();
