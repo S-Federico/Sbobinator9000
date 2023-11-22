@@ -101,11 +101,13 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'crea
 
     def fileFilter = ['/R.class', '/R$*.class', '/BuildConfig.*', '/Manifest*.*',  'android//*.*']
     def debugTree = fileTree(dir: "${buildDir}/intermediates/javac/debug", excludes: fileFilter)
+    def kotlinTree = fileTree(dir: "${buildDir}/tmp/kotlin-classes/debug", excludes: fileFilter)
+
     def mainSrc = "$projectDir/src/main/java"
 
     sourceDirectories.from files([mainSrc])
-    classDirectories.from files([debugTree])
+    classDirectories.from files([debugTree, kotlinTree])
     executionData.from fileTree(dir: "$buildDir", includes: [
-            'jacoco/testDebugUnitTest.exec', 'outputs/code_coverage/debugAndroidTest/connected/**/*.ec', "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec"
+            'jacoco/testDebugUnitTest.exec',  "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec", 'outputs/code_coverage/debugAndroidTest/connected/**/*.ec'
     ])
 }

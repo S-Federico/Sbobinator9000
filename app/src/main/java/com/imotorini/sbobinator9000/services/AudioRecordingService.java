@@ -122,9 +122,6 @@ public class AudioRecordingService {
         return (float) audioRecorder.getMaxAmplitude();
     }
 
-    public void transcribe(byte[] fileData, Callback onResponseCallback) throws Exception {
-        transcriptionService.transcribeAsync(fileData, onResponseCallback);
-    }
 
     public boolean isRecording() {
         return recording;
