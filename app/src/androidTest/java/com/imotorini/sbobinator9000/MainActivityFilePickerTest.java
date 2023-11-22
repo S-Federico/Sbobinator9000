@@ -6,11 +6,8 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
 
-import static com.google.android.material.datepicker.CompositeDateValidator.allOf;
-
 import android.app.Instrumentation;
 import android.content.Intent;
-import android.net.Uri;
 
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.intent.matcher.IntentMatchers;
@@ -24,8 +21,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Collections;
-
 
 @RunWith(AndroidJUnit4.class)
 public class MainActivityFilePickerTest {
@@ -33,7 +28,6 @@ public class MainActivityFilePickerTest {
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
 
     @Before
-
     public void setUp() {
 
     }
@@ -42,7 +36,6 @@ public class MainActivityFilePickerTest {
     public void tearDown() {
 
     }
-
 
 
     @Test
@@ -54,7 +47,7 @@ public class MainActivityFilePickerTest {
         });
         onView(ViewMatchers.withId(R.id.transcribe)).perform(click());
 
-               // Configura un intent fittizio per la tua attività di scelta file
+        // Configura un intent fittizio per la tua attività di scelta file
         intending(hasAction(Intent.ACTION_GET_CONTENT))
                 .respondWith(new Instrumentation.ActivityResult(MainActivity.RESULT_OK, null));
 
@@ -66,6 +59,6 @@ public class MainActivityFilePickerTest {
         // Termina la registrazione degli intenti
         Intents.release();
 
-        }
+    }
 
 }
