@@ -89,13 +89,7 @@ jacoco {
 
 }
 
-tasks.withType(Test) {
-    finalizedBy jacocoTestReport
-    jacoco {
-        includeNoLocationClasses = true
-        excludes = ["jdk.internal.*"]
-    }
-}
+
 
 
 task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'createDebugCoverageReport']) {
