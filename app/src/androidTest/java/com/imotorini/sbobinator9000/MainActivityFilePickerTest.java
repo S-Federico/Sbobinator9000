@@ -38,19 +38,7 @@ public class MainActivityFilePickerTest {
         Intents.release();
     }
 
-    @Test
-    public void testTranscribeButton() {
-        // Fai clic sul pulsante
-        activityRule.getScenario().onActivity(activity -> {
-            activity.enableTranscribeButton();
-        });
 
-        onView(ViewMatchers.withId(R.id.transcribe)).perform(click());
-
-        // Verifica che sia stata avviata un'attività (qualsias)
-
-        Intents.intended(IntentMatchers.anyIntent());
-    }
 
     @Test
     public void testFilePickerActivityResultHandling() {

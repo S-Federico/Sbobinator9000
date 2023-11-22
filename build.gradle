@@ -16,6 +16,7 @@ buildscript {
     }
 }
 
+
 allprojects {
 
     // Create Checkstyle task at root level
