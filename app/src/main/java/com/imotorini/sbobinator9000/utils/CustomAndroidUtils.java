@@ -21,7 +21,9 @@ public class CustomAndroidUtils {
     private static ObjectMapper om = new ObjectMapper();
 
     public static byte[] fileToBytes(Uri fileUri, Context context) throws IOException {
-        if (fileUri == null || context == null) return null;
+        if (fileUri == null || context == null) {
+            return null;
+        }
         ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
         int bufferSize = 1024;
         byte[] buffer = new byte[bufferSize];

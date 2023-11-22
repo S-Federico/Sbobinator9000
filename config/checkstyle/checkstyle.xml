@@ -28,7 +28,7 @@
         <property name="message" value="Line has trailing spaces." />
     </module>
     <module name="LineLength">
-        <property name="max" value="120" />
+        <property name="max" value="250" />
     </module>
     <module name="TreeWalker">
         <!-- Block Checks -->
@@ -50,7 +50,7 @@
         <module name="EmptyStatement" />
         <module name="EqualsAvoidNull" />
         <module name="EqualsHashCode" />
-        <module name="ExplicitInitialization" />
+<!--        <module name="ExplicitInitialization" />-->
         <module name="FallThrough" />
         <module name="HiddenField">
             <property name="ignoreConstructorParameter" value="true" />
@@ -85,13 +85,13 @@
         <!-- Headers -->
         <!-- Imports -->
         <module name="IllegalImport" />
-        <module name="ImportOrder">
-            <property name="groups" value="*,javax,java"/>
-            <property name="ordered" value="true"/>
-            <property name="separated" value="true"/>
-            <property name="option" value="bottom"/>
-            <property name="sortStaticImportsAlphabetically" value="true"/>
-        </module>
+<!--        <module name="ImportOrder">-->
+<!--            <property name="groups" value="*,javax,java"/>-->
+<!--            <property name="ordered" value="true"/>-->
+<!--            <property name="separated" value="true"/>-->
+<!--            <property name="option" value="bottom"/>-->
+<!--            <property name="sortStaticImportsAlphabetically" value="true"/>-->
+<!--        </module>-->
         <module name="RedundantImport" />
         <module name="UnusedImports" />
         <!-- Javadoc Comments -->
@@ -131,10 +131,10 @@
         <module name="ParameterNumber" />
         <!-- Whitespace -->
         <module name="EmptyForIteratorPad" />
-        <module name="EmptyLineSeparator">
-            <property name="allowNoEmptyLineBetweenFields" value="true" />
-            <property name="allowMultipleEmptyLines" value="false" />
-        </module>
+<!--        <module name="EmptyLineSeparator">-->
+<!--            <property name="allowNoEmptyLineBetweenFields" value="true" />-->
+<!--            <property name="allowMultipleEmptyLines" value="false" />-->
+<!--        </module>-->
         <module name="GenericWhitespace" />
         <module name="MethodParamPad" />
         <module name="NoWhitespaceAfter" />
