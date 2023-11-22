@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'jacoco'
 }
 
 android {
@@ -28,6 +29,7 @@ android {
         debug {
             minifyEnabled false
             buildConfigField("String", "STT_BASE_URL", "\"http://10.0.2.2:9999\"")
+            testCoverageEnabled true
         }
     }
     compileOptions {
@@ -38,6 +40,7 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
+
 }
 
 dependencies {
@@ -54,14 +57,15 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.4.1'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.4.1'
     implementation 'androidx.core:core-ktx:+'
+    implementation 'androidx.test.espresso:espresso-intents:3.5.1'
 
     // Test dependeencies
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.2.0-alpha01'
 
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.0-alpha01'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     androidTestImplementation 'androidx.test:runner:1.4.0'
-    androidTestImplementation 'androidx.test:rules:1.6.0-alpha01'
+    androidTestImplementation 'androidx.test:rules:1.5.0'
     testImplementation 'org.mockito:mockito-core:5.5.0'
 
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.11.0'
@@ -76,3 +80,38 @@ preBuild.dependsOn('checkstyle')
 //build.dependsOn('checkstyle')
 assemble.dependsOn('lint')
 check.dependsOn('checkstyle')
+
+
+apply plugin: 'jacoco'
+
+jacoco {
+    toolVersion = "0.8.9"
+
+}
+
+tasks.withType(Test) {
+    finalizedBy jacocoTestReport
+    jacoco {
+        includeNoLocationClasses = true
+        excludes = ["jdk.internal.*"]
+    }
+}
+
+
+task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'createDebugCoverageReport']) {
+
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+
+    def fileFilter = ['/R.class', '/R$*.class', '/BuildConfig.*', '/Manifest*.*',  'android//*.*']
+    def debugTree = fileTree(dir: "${buildDir}/intermediates/javac/debug", excludes: fileFilter)
+    def mainSrc = "$projectDir/src/main/java"
+
+    sourceDirectories.from files([mainSrc])
+    classDirectories.from files([debugTree])
+    executionData.from fileTree(dir: "$buildDir", includes: [
+            'jacoco/testDebugUnitTest.exec', 'outputs/code_coverage/debugAndroidTest/connected/**/*.ec', "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec"
+    ])
+}

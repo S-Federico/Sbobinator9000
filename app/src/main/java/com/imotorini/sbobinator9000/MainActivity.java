@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView isRecordingTextView;
     private boolean isRecording = false;
     private boolean isTimerRunning = false; // Variabile per tenere traccia dello stato del timer
-    private final int RESULT_CODE_FILEPICKER = 200;
+    static final int RESULT_CODE_FILEPICKER = 200;
 
     private AudioRecordingService audioRecordingService;
     private TranscriptionService transcriptionService;
@@ -350,4 +350,7 @@ public class MainActivity extends AppCompatActivity {
         unregisterReceiver(receiver);
     }
 
+    public void enableTranscribeButton() {
+        transcribeButton.setEnabled(true);
+    }
 }
