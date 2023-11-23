@@ -11,12 +11,12 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 
-class DiscoveryService : Service() {
+open class DiscoveryService : Service() {
 
     private val client = OkHttpClient()
     private val numberOfThreads = 50
     private val executor = Executors.newFixedThreadPool(numberOfThreads)
-    private val TAG = DiscoveryService::class.qualifiedName;
+    private val TAG = DiscoveryService::class.qualifiedName
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -27,7 +27,7 @@ class DiscoveryService : Service() {
         return START_NOT_STICKY
     }
 
-    private fun getCurrentSubnetBase(): String? {
+    fun getCurrentSubnetBase(): String {
         val wifiManager = getSystemService(Context.WIFI_SERVICE) as WifiManager
         val ipAddress = wifiManager.connectionInfo.ipAddress
 
@@ -39,7 +39,7 @@ class DiscoveryService : Service() {
                 (ipAddress shr 16 and 0xff)
         )
 
-        return ip
+        return ip //usa big endian
     }
 
     private fun scanSubnet() {
