@@ -19,6 +19,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import okhttp3.Request;
+import okhttp3.RequestBody;
+
 public class CustomAndroidUtilsTest {
 
     @Test
@@ -103,5 +106,24 @@ public class CustomAndroidUtilsTest {
         String res = CustomAndroidUtils.objectToJsonString(tr);
         String expected = "{\"audio_bytes\":\"Q0lBTw==\",\"audio_format\":\"wav\"}";
         Assert.assertEquals(expected, res);
+    }
+
+    @Test
+    public void testGetRequestBodyAsStringNull() {
+        Request request = null;
+        Assert.assertNull(CustomAndroidUtils.getRequestBodyAsString(request));
+        request = new Request.Builder()
+                .url("http://www.google.it")
+                .build();
+        Assert.assertNull(CustomAndroidUtils.getRequestBodyAsString(request));
+    }
+
+    @Test
+    public void testGetRequestBodyAsStringNotNull() {
+        Request request = new Request.Builder()
+                .url("http://www.google.it")
+                .post(RequestBody.create("TEST".getBytes()))
+                .build();
+        Assert.assertEquals("TEST", CustomAndroidUtils.getRequestBodyAsString(request));
     }
 }

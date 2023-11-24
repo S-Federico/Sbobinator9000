@@ -18,7 +18,7 @@ import okio.Buffer;
 
 public class CustomAndroidUtils {
 
-    private static ObjectMapper om = new ObjectMapper();
+    private static final ObjectMapper om = new ObjectMapper();
 
     public static byte[] fileToBytes(Uri fileUri, Context context) throws IOException {
         if (fileUri == null || context == null) {
@@ -66,4 +66,6 @@ public class CustomAndroidUtils {
         transcriptionResponse = CustomAndroidUtils.jsonStringToObject(responseBodyStr, TranscriptionResponse.class);
         return transcriptionResponse;
     }
+
+    private CustomAndroidUtils() {}
 }
