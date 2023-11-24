@@ -15,7 +15,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.Response;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -68,5 +72,49 @@ public class TranscriptionServiceTest {
         assertEquals("AAA", transcriptionResponse1.getData());
         assertEquals("OK", transcriptionResponse1.getStatus());
         assertEquals(null, transcriptionResponse1.getErrorMessage());
+    }
+    @Test
+    public void transcribeAsyncTest() throws InterruptedException {
+        TranscriptionResponse transcriptionResponse = new TranscriptionResponse();
+        transcriptionResponse.setStatus("OK");
+        transcriptionResponse.setData("BBB");
+        transcriptionResponse.setErrorMessage(null);
+
+        server.setDispatcher(new Dispatcher() {
+            @NonNull
+            @Override
+            public MockResponse dispatch(@NonNull RecordedRequest recordedRequest) throws InterruptedException {
+                try {
+                    return new MockResponse().setBody(CustomAndroidUtils.objectToJsonString(transcriptionResponse)).setResponseCode(200);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        TranscriptionService service = new TranscriptionService("http://127.0.0.1:9999");
+
+        // Usiamo CountDownLatch per sincronizzare il test asincrono
+        CountDownLatch latch = new CountDownLatch(1);
+
+        service.transcribeAsync("RandomByteValue".getBytes(), new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                TranscriptionResponse transcriptionResponse1 = CustomAndroidUtils.parseResponse(response);
+                assertEquals("BBB", transcriptionResponse1.getData());
+                assertEquals("OK", transcriptionResponse1.getStatus());
+                assertEquals(null, transcriptionResponse1.getErrorMessage());
+                latch.countDown(); // decrementa il latch quando la risposta è ricevuta
+            }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                // gestire eventuali errori
+                latch.countDown(); // decrementa il latch in caso di fallimento
+            }
+        });
+
+        // Attendere al massimo 5 secondi per il completamento asincrono
+        latch.await(5, TimeUnit.SECONDS);
     }
 }
